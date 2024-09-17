@@ -1,0 +1,23 @@
+{
+  "name": "@modelerjs/dependency-container",
+  "version": "0.0.1",
+  "description": "Dependency container based on VUE effected scope and shared composable.",
+  "author": "abratko",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "vue": ">=2.7.8"
+  },
+  "devDependencies": {
+    "typescript": ">=5.2.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/modelerjs/dependency-container"
+  },
+  "bugs": {
+    "url": "https://github.com/modelerjs/dependency-container/issues"
+  }
+}
