@@ -1,15 +1,15 @@
-import { onScopeDispose } from 'vue'
+import { onScopeDispose } from 'vue-demi'
 
 import { getContainer } from './get-container'
 import { DependencyFactory, Provider } from './types'
 
 export function defineProvider<Target> (
-  factory: DependencyFactory<Target>,
+    factory: DependencyFactory<Target>,
 ): Provider<Target> {
   return (): Target => {
     const container = getContainer()
 
-    const dependencyDescriptor = container.get<Target>(factory) || container.add(factory)
+    const dependencyDescriptor = container.get<Target>(factory) ?? container.add(factory)
 
     dependencyDescriptor.subscribeOnScopeDispose(
       (scopeDisposeSubscriber) => {

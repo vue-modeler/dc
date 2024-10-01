@@ -1,4 +1,4 @@
-import { EffectScope, effectScope } from 'vue'
+import { EffectScope, effectScope } from 'vue-demi'
 
 import { DependencyFactory } from '../types'
 

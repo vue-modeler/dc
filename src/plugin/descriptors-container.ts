@@ -2,7 +2,7 @@ import { DependencyFactory } from '../types'
 import { Descriptor } from './descriptor'
 
 export class DescriptorsContainer {
-  protected items = new Map()
+  protected items = new Map<DependencyFactory<unknown>, Descriptor<unknown>>()
 
   get size (): number {
     return this.items.size
@@ -13,7 +13,7 @@ export class DescriptorsContainer {
   }
 
   get<Target> (key: DependencyFactory<Target>): Descriptor<Target> | undefined {
-    return this.items.get(key)
+    return this.items.get(key) as Descriptor<Target> | undefined
   }
 
   add <Target> (
@@ -26,7 +26,7 @@ export class DescriptorsContainer {
   }
 
   clean (): void {
-    for (const descriptor of Object.values(this.items)) {
+    for (const descriptor of this.items.values()) {
       descriptor.destructor()
     }
 

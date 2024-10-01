@@ -1,23 +1,13 @@
+import type {  ComponentPublicInstance, FunctionPlugin } from 'vue-demi'
 import { DescriptorsContainer } from './descriptors-container'
-
-const mixinForVue2 = {
+ 
+const mixinForVue2: ThisType<ComponentPublicInstance>  = {
   beforeCreate (): void {
-    this.$dependencyContainer = this.$options.parent?.$dependencyContainer || this.$options.dependencyContainer
-
-    if (this.$dependencyContainer) {
-      return
-    }
-
-    this.$dependencyContainer = new DescriptorsContainer()
+    this.$dependencyContainer = this.$parent?.$dependencyContainer ?? new DescriptorsContainer()
   },
 }
 
 
-export function vue2Install (vue): void {
-  if (vue.prototype._dependencyContainerIntalled) {
-    return
-  }
-
-  vue.prototype._dependencyContainerIntalled = true
-  vue.mixin(mixinForVue2)
+export const  vue2Install: FunctionPlugin = function (_vue): void {
+  _vue.mixin(mixinForVue2)
 }

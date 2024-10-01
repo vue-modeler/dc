@@ -6,7 +6,7 @@ export function defineSingletonProvider<Target> (
 ): Provider<Target> {
   return (): Target => {
     const scopedDc = getContainer()
-    const dependencyDescriptor = scopedDc.get<Target>(factory) || scopedDc.add(factory)
+    const dependencyDescriptor = scopedDc.get<Target>(factory) ?? scopedDc.add(factory)
 
     return dependencyDescriptor.instance
   }

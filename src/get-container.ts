@@ -1,4 +1,4 @@
-import { getCurrentInstance } from 'vue'
+import { getCurrentInstance } from 'vue-demi'
 
 import { DescriptorsContainer } from './plugin/descriptors-container'
 
