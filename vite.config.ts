@@ -7,6 +7,7 @@ export default defineConfig({
     dts({ rollupTypes: true })
 ],
     build: {
+        minify: true,
         lib: {
             fileName: 'index',
             entry: resolve(__dirname, 'src/index.ts'),

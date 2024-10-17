@@ -8,6 +8,6 @@ const mixinForVue2: ThisType<ComponentPublicInstance>  = {
 }
 
 
-export const  vue2Install: FunctionPlugin = function (_vue): void {
+export const  vue2Install: FunctionPlugin = (_vue): void => {
   _vue.mixin(mixinForVue2)
 }

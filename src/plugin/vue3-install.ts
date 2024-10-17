@@ -1,7 +1,8 @@
-import Vue from 'vue'
+import type { FunctionPlugin } from 'vue-demi'
+
 import { DescriptorsContainer } from './descriptors-container'
 
-export function vue3Install (app: Vue.App): void {
+export const vue3Install: FunctionPlugin = (app): void => {
   if (app.config.globalProperties.$dependencyContainer) {
     return
   }
