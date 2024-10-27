@@ -4,7 +4,10 @@ import eslint from '@eslint/js';
 import tseslint from 'typescript-eslint';
 
 export default tseslint.config({
-  files: ['src/**/*.ts'],
+  files: [
+    'src/**/*.ts', 
+    'tests/**/*.ts', 
+  ],
   languageOptions: {
     parserOptions: {
       parser: "@typescript-eslint/parser",

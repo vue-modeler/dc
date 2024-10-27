@@ -1,4 +1,5 @@
 export * from './get-container'
 export * from './define-provider'
+export * from './define-singleton-provider'
 export * from './plugin'
 export * from './types'

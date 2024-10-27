@@ -1,9 +1,9 @@
-import { EffectScope, effectScope } from 'vue-demi'
+import { EffectScope, effectScope, onScopeDispose } from 'vue'
 
 import { DependencyFactory } from '../types'
 
 export class Descriptor<Target> {
-  protected _scopeCount = 0
+  protected _parentScopeCount = 0
   protected _instance: Target
   protected _instanceScope: EffectScope
 
@@ -24,55 +24,38 @@ export class Descriptor<Target> {
     return this._instance
   }
 
-  get scopeCount (): number {
-    return this._scopeCount
+  get parentScopeCount (): number {
+    return this._parentScopeCount
   }
 
-  subscribeOnScopeDispose (onScopeDispose: (subscriber: () => this) => void): void {
-    this._scopeCount++
-    onScopeDispose(() => {
-      this.disposeScope()
-
-      return this
-    })
+  subscribeOnParentScopeDispose (onParentScopeDispose: typeof onScopeDispose): void {
+    this._parentScopeCount++
+    
+    // this is potential memory leak, because we don't know
+    // if the parent scope will be disposed
+    onParentScopeDispose(() => { this.disposeScope() })
   }
 
-  destructor (): void {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    const hasDestructor = 'destructor' in this.instance && typeof this.instance.destructor === 'function'
+  protected callInstanceDestructor (instance: unknown): void {
+    const hasDestructor = instance 
+      && typeof instance === 'object' 
+      && 'destructor' in instance 
+      && typeof instance.destructor === 'function'
 
     if (!hasDestructor) {
       return
     }
 
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    this.instance.destructor()
+    (instance.destructor as () => void)() 
   }
 
   protected disposeScope (): void {
-    if (--this._scopeCount > 0) {
+    if (--this._parentScopeCount > 0) {
       return
     }
 
     this._instanceScope.stop()
-
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    const hasDestructor = 'destructor' in this.instance && typeof this.instance.destructor === 'function'
-
-    if (!hasDestructor) {
-      return
-    }
-
-    try {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      this.instance.destructor()
-    } catch (error) {
-      console.error(error)
-    }
+    
+    this.callInstanceDestructor(this._instance)
   }
 }
-

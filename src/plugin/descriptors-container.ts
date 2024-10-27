@@ -19,17 +19,13 @@ export class DescriptorsContainer {
   add <Target> (
     factory: DependencyFactory<Target>,
   ): Descriptor<Target> {
+    if (this.items.has(factory)) {
+      return this.items.get(factory) as Descriptor<Target>
+    }
+
     const descriptor = new Descriptor(factory)
     this.items.set(descriptor.factory, descriptor)
 
     return descriptor
-  }
-
-  clean (): void {
-    for (const descriptor of this.items.values()) {
-      descriptor.destructor()
-    }
-
-    this.items = new Map()
   }
 }
