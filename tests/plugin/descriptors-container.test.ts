@@ -3,7 +3,7 @@ import { DescriptorsContainer } from '../../src/plugin/descriptors-container'
 
 // Mock the Descriptor module
 vi.mock('../../src/plugin/descriptor', () => ({
-  Descriptor: vi.fn().mockImplementation((factory) => ({
+  Descriptor: vi.fn().mockImplementation((factory: () => object) => ({
     factory,
   }))
 }))

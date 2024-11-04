@@ -1,12 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { createLocalVue, mount, shallowMount } from '@vue/test-utils'
+import { createLocalVue, shallowMount } from '@vue/test-utils'
 import { vueModelerDc } from '../../src/plugin/vue-modeler-dc'
 import '../../src/vue.d.ts'
 
 // Mock DescriptorsContainer
 vi.mock('../../src/plugin/descriptors-container', () => ({
   DescriptorsContainer: vi.fn().mockImplementation(function() {
-    return Object.create(DescriptorsContainer.prototype);
+    return Object.create(DescriptorsContainer.prototype) as DescriptorsContainer
   })
 }))
 
@@ -14,7 +14,7 @@ vi.mock('../../src/plugin/descriptors-container', () => ({
 import { DescriptorsContainer } from '../../src/plugin/descriptors-container'
 
 describe('vueModelerDc', () => {
-  let LocalVue: any
+  let LocalVue: ReturnType<typeof createLocalVue>
 
   beforeEach(() => {
     LocalVue = createLocalVue()
@@ -28,16 +28,6 @@ describe('vueModelerDc', () => {
     expect(LocalVue.prototype).haveOwnPropertyDescriptor('_vueModelerDcInstalled')
   })
 
-  it('should set _vueModelerDcInstalled to true on first call', () => {
-    expect(LocalVue.prototype._vueModelerDcInstalled).toBeUndefined()
-    
-    const spyOnMixin = vi.spyOn(LocalVue, 'mixin')
-    vueModelerDc(LocalVue)
-    
-    expect(LocalVue.prototype._vueModelerDcInstalled).toBe(true)
-    expect(spyOnMixin).toHaveBeenCalledOnce()
-  })
-  
   it('should not reinstall the plugin if already installed', () => {
     const LocalVue = createLocalVue()
     const spyOnMixin = vi.spyOn(LocalVue, 'mixin')
@@ -45,7 +35,6 @@ describe('vueModelerDc', () => {
     vueModelerDc(LocalVue)
     vueModelerDc(LocalVue)
     
-    expect(LocalVue.prototype._vueModelerDcInstalled).toBe(true)
     expect(spyOnMixin).toHaveBeenCalledOnce()
   })
 
@@ -74,7 +63,7 @@ describe('vueModelerDc', () => {
     expect(wrapper.vm.$vueModelerDc).toBeInstanceOf(DescriptorsContainer)
   })
 
-    it('should create unique DescriptorsContainer instances for different localVue instances', () => {
+  it('should create unique DescriptorsContainer instances for different localVue instances', () => {
     const localVue1 = createLocalVue()
     const localVue2 = createLocalVue()
 

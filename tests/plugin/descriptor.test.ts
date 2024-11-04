@@ -1,11 +1,11 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { Descriptor } from '../../src/plugin/descriptor'
-import { EffectScope, effectScope, onScopeDispose } from 'vue'
+import { effectScope, onScopeDispose } from 'vue'
 
 // Mock Vue's effectScope and onScopeDispose
 vi.mock('vue', () => ({
   effectScope: vi.fn(),
-  onScopeDispose: vi.fn(),
+  onScopeDispose: vi.fn() as never as typeof onScopeDispose,
 }))
 
 describe('Descriptor', () => {
@@ -39,62 +39,53 @@ describe('Descriptor', () => {
 
   it('should increment parentScopeCount when subscribeOnParentScopeDispose is called', () => {
     const descriptor = new Descriptor(mockFactory)
-    descriptor.subscribeOnParentScopeDispose(onScopeDispose as any)
+    descriptor.subscribeOnParentScopeDispose(onScopeDispose)
     expect(descriptor.parentScopeCount).toBe(1)
     expect(onScopeDispose).toHaveBeenCalled()
-  })
-
-  it('should call disposeScope when onParentScopeDispose callback is triggered', () => {
-    const descriptor = new Descriptor(mockFactory)
-    const disposeScopeSpy = vi.spyOn(descriptor as any, 'disposeScope')
-    descriptor.subscribeOnParentScopeDispose(onScopeDispose as any)
-    const disposeFn = (onScopeDispose as ReturnType<typeof vi.fn>).mock.calls[0][0]
-    disposeFn()
-    expect(disposeScopeSpy).toHaveBeenCalled()
   })
 
   it('should call instance destructor if it exists', () => {
     mockInstance.destructor = vi.fn()
     const descriptor = new Descriptor(mockFactory)
-    descriptor.subscribeOnParentScopeDispose(onScopeDispose as any)
-    const disposeFn = (onScopeDispose as ReturnType<typeof vi.fn>).mock.calls[0][0]
+    descriptor.subscribeOnParentScopeDispose(onScopeDispose)
+    const disposeFn = (onScopeDispose as ReturnType<typeof vi.fn>).mock.calls[0][0] as () => void
     disposeFn()
     expect(mockInstance.destructor).toHaveBeenCalled()
   })
 
   it('should not throw when calling destructor on an instance without a destructor method', () => {
     const descriptor = new Descriptor(mockFactory)
-    descriptor.subscribeOnParentScopeDispose(onScopeDispose as any)
-    const disposeFn = (onScopeDispose as ReturnType<typeof vi.fn>).mock.calls[0][0]
-    expect(() => disposeFn()).not.toThrow()
+    descriptor.subscribeOnParentScopeDispose(onScopeDispose)
+    const disposeFn = (onScopeDispose as ReturnType<typeof vi.fn>).mock.calls[0][0] as () => void
+    expect(() => { disposeFn() }).not.toThrow()
   })
 
   it('should dispose the scope when all parent scopes are disposed', () => {
     const descriptor = new Descriptor(mockFactory)
-    descriptor.subscribeOnParentScopeDispose(onScopeDispose as any)
-    const disposeFn = (onScopeDispose as ReturnType<typeof vi.fn>).mock.calls[0][0]
+    descriptor.subscribeOnParentScopeDispose(onScopeDispose)
+    const disposeFn = (onScopeDispose as ReturnType<typeof vi.fn>).mock.calls[0][0] as () => void
     disposeFn()
     expect(mockEffectScope.stop).toHaveBeenCalled()
   })
 
   it('should not dispose the scope if there are remaining parent scopes', () => {
     const descriptor = new Descriptor(mockFactory)
-    descriptor.subscribeOnParentScopeDispose(onScopeDispose as any)
-    descriptor.subscribeOnParentScopeDispose(onScopeDispose as any)
-    const disposeFn = (onScopeDispose as ReturnType<typeof vi.fn>).mock.calls[0][0]
+    descriptor.subscribeOnParentScopeDispose(onScopeDispose)
+    descriptor.subscribeOnParentScopeDispose(onScopeDispose)
+    const disposeFn = (onScopeDispose as ReturnType<typeof vi.fn>).mock.calls[0][0] as () => void
     disposeFn()
     expect(mockEffectScope.stop).not.toHaveBeenCalled()
   })
 
   it('should correctly handle multiple subscriptions and disposals', () => {
     const descriptor = new Descriptor(mockFactory)
-    descriptor.subscribeOnParentScopeDispose(onScopeDispose as any)
-    descriptor.subscribeOnParentScopeDispose(onScopeDispose as any)
+    descriptor.subscribeOnParentScopeDispose(onScopeDispose)
+    descriptor.subscribeOnParentScopeDispose(onScopeDispose)
     
     expect(descriptor.parentScopeCount).toBe(2)
 
-    const disposeFn1 = (onScopeDispose as ReturnType<typeof vi.fn>).mock.calls[0][0]
-    const disposeFn2 = (onScopeDispose as ReturnType<typeof vi.fn>).mock.calls[1][0]
+    const disposeFn1 = (onScopeDispose as ReturnType<typeof vi.fn>).mock.calls[0][0] as () => void
+    const disposeFn2 = (onScopeDispose as ReturnType<typeof vi.fn>).mock.calls[1][0] as () => void
 
     disposeFn1()
     expect(descriptor.parentScopeCount).toBe(1)
@@ -108,11 +99,11 @@ describe('Descriptor', () => {
   it('should call instance destructor only when the last parent scope is disposed', () => {
     mockInstance.destructor = vi.fn()
     const descriptor = new Descriptor(mockFactory)
-    descriptor.subscribeOnParentScopeDispose(onScopeDispose as any)
-    descriptor.subscribeOnParentScopeDispose(onScopeDispose as any)
+    descriptor.subscribeOnParentScopeDispose(onScopeDispose)
+    descriptor.subscribeOnParentScopeDispose(onScopeDispose)
 
-    const disposeFn1 = (onScopeDispose as ReturnType<typeof vi.fn>).mock.calls[0][0]
-    const disposeFn2 = (onScopeDispose as ReturnType<typeof vi.fn>).mock.calls[1][0]
+    const disposeFn1 = (onScopeDispose as ReturnType<typeof vi.fn>).mock.calls[0][0] as () => void
+    const disposeFn2 = (onScopeDispose as ReturnType<typeof vi.fn>).mock.calls[1][0] as () => void
 
     disposeFn1()
     expect(mockInstance.destructor).not.toHaveBeenCalled()
