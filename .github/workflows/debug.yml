@@ -40,7 +40,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pwd    
+          pnpm --version   
           ls -la 
           pnpm install --frozen-lockfile
 
