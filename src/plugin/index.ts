@@ -1,3 +1,6 @@
+<<<<<<< HEAD
+export * from './vue-modeler-dc'
+=======
 import { App, isVue3, Plugin } from 'vue-demi'
 
 import { vue2Install } from './vue2-install'
@@ -13,4 +16,5 @@ export const  vueModelerDcPlugin: Plugin = (app: App): void => {
 
   vue2Install(app)
 }
+>>>>>>> origin/main
 

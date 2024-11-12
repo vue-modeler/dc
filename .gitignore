@@ -1,7 +1,9 @@
 node_modules/
 dist/
+coverage/
 .vscode/
 .idea/
 .run/
 .http/
 .history/
+.npm
