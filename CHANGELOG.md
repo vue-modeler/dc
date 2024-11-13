@@ -1,3 +1,10 @@
+## [1.0.1](https://github.com/vue-modeler/dc/compare/v1.0.0...v1.0.1) (2024-11-13)
+
+
+### Bug Fixes
+
+* update lock file ([8d41845](https://github.com/vue-modeler/dc/commit/8d418451992987755cc5193df6cde58a25e8af89))
+
 # 1.0.0 (2024-11-13)
 
 
