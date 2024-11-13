@@ -1,3 +1,10 @@
+## [1.0.3](https://github.com/vue-modeler/dc/compare/v1.0.2...v1.0.3) (2024-11-13)
+
+
+### Bug Fixes
+
+* add config for semantic-release ([91f66a7](https://github.com/vue-modeler/dc/commit/91f66a7733997226fe166a579da84bd838e3e68b))
+
 ## [1.0.1](https://github.com/vue-modeler/dc/compare/v1.0.0...v1.0.1) (2024-11-13)
 
 
