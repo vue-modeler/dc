@@ -5,8 +5,8 @@ export function defineSingletonProvider<Target> (
   factory: DependencyFactory<Target>,
 ): Provider<Target> {
   return (): Target => {
-    const scopedDc = getContainer()
-    const dependencyDescriptor = scopedDc.get<Target>(factory) ?? scopedDc.add(factory)
+    const container = getContainer()
+    const dependencyDescriptor = container.get<Target>(factory) ?? container.add(factory)
 
     return dependencyDescriptor.instance
   }
