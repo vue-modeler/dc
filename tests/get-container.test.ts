@@ -1,4 +1,4 @@
-import { describe, it, vi } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { getCurrentInstance } from 'vue'
 import { DescriptorsContainer } from '../src/plugin/descriptors-container'
 import { getContainer } from '../src/get-container'
