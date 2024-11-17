@@ -1,3 +1,16 @@
+# [2.0.0](https://github.com/vue-modeler/dc/compare/v1.0.4...v2.0.0) (2024-11-17)
+
+
+### Bug Fixes
+
+* **ci:** add build job into release workflow ([2889ce5](https://github.com/vue-modeler/dc/commit/2889ce52148382567b477dca2f4ef087a31543bd))
+* **test:** add imports ([28820f2](https://github.com/vue-modeler/dc/commit/28820f2212dd256405570d95a1ee08c50d28259b))
+
+
+### BREAKING CHANGES
+
+* **ci:** this option added to increase major version
+
 ## [1.0.4](https://github.com/vue-modeler/dc/compare/v1.0.3...v1.0.4) (2024-11-17)
 
 
