@@ -24,5 +24,6 @@ export default tseslint.config({
     '@typescript-eslint/no-explicit-any': ['error', {
         ignoreRestArgs: true,
     }],
+    '@typescript-eslint/prefer-nullish-coalescing': 'off',
   },
 })

@@ -9,7 +9,7 @@ export function defineProvider<Target> (
   return (): Target => {
     const container = getContainer()
 
-    const dependencyDescriptor = container.get<Target>(factory) ?? container.add(factory)
+    const dependencyDescriptor = container.get<Target>(factory) || container.add(factory)
     
     // Order of operations is important here.
     // The functions registered with onScopeDispose are called in direct order

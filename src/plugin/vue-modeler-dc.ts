@@ -5,7 +5,7 @@ import { DescriptorsContainer } from './descriptors-container'
 
 const mixinForVue2: ThisType<Vue> = {
   beforeCreate (): void {
-    this._vueModelerDc = this.$parent?._vueModelerDc ?? new DescriptorsContainer()
+    this._vueModelerDc = this.$parent?._vueModelerDc || new DescriptorsContainer()
   },
 }
 
