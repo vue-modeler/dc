@@ -1,3 +1,21 @@
+## [1.0.4](https://github.com/vue-modeler/dc/compare/v1.0.3...v1.0.4) (2024-11-17)
+
+
+### Bug Fixes
+
+* **ci:** set correct   env name ([a034ee5](https://github.com/vue-modeler/dc/commit/a034ee59fec8b74f27f79db7bdb226d14b89065a))
+* **ci:** set correct  env name for npm token ([f840531](https://github.com/vue-modeler/dc/commit/f8405315fb41ddc612485db4ea42dd2a3696a246))
+
+
+### Documentation
+
+* **README:** add installation instractions and using examples ([e086aeb](https://github.com/vue-modeler/dc/commit/e086aeb320cf6d9c1c6d056e1709b2b6d9afb3e0))
+
+
+### BREAKING CHANGES
+
+* **README:** this options added to update version and README in npm registry
+
 ## [1.0.3](https://github.com/vue-modeler/dc/compare/v1.0.2...v1.0.3) (2024-11-13)
 
 ### Bug Fixes

@@ -1,7 +1,7 @@
 {
   "type": "module",
   "name": "@vue-modeler/dc",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Dependency container based on VUE effected scope and shared composable.",
   "author": "abratko",
   "license": "MIT",
