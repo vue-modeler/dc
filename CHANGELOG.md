@@ -1,3 +1,10 @@
+## [2.0.1](https://github.com/vue-modeler/dc/compare/v2.0.0...v2.0.1) (2024-11-17)
+
+
+### Bug Fixes
+
+* erros with ?? ([8ab14d4](https://github.com/vue-modeler/dc/commit/8ab14d4dec05032337eda6eed37d2f1c0f7103fa))
+
 # [2.0.0](https://github.com/vue-modeler/dc/compare/v1.0.4...v2.0.0) (2024-11-17)
 
 
