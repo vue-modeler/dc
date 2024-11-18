@@ -1,3 +1,10 @@
+## [2.0.2](https://github.com/vue-modeler/dc/compare/v2.0.1...v2.0.2) (2024-11-18)
+
+
+### Bug Fixes
+
+* **build:** add CommonJS module format into build ([fb6af49](https://github.com/vue-modeler/dc/commit/fb6af49f5f68fa5e1da5087761de7df062d375eb))
+
 ## [2.0.1](https://github.com/vue-modeler/dc/compare/v2.0.0...v2.0.1) (2024-11-17)
 
 
