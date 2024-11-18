@@ -1,3 +1,10 @@
+## [2.0.3](https://github.com/vue-modeler/dc/compare/v2.0.2...v2.0.3) (2024-11-18)
+
+
+### Bug Fixes
+
+* **packge:** add some options ([5cb92a6](https://github.com/vue-modeler/dc/commit/5cb92a68d73bbef4e46a7d0b50786e788ba0e46b))
+
 ## [2.0.2](https://github.com/vue-modeler/dc/compare/v2.0.1...v2.0.2) (2024-11-18)
 
 
