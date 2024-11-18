@@ -5,6 +5,9 @@
   "description": "Dependency container based on VUE effected scope and shared composable.",
   "author": "abratko",
   "license": "MIT",
+  "files": ["dist"],
+  "main": "./dist/index.umd.cjs",
+  "module": "./dist/index.js",
   "exports": {
     ".": {
       "import": "./dist/index.js",
