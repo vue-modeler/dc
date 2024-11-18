@@ -18,10 +18,17 @@ export default defineConfig({
     lib: {
       fileName: 'index',
       entry: resolve(__dirname, 'src/index.ts'),
-      formats: ['es'],
+      name: 'index'
     },
     rollupOptions: {
       external: ['vue'],
+      output: {
+        // Provide global variables to use in the UMD build
+        // for externalized deps
+        globals: {
+          vue: 'Vue',
+        },
+      },
     },
   },
 })
