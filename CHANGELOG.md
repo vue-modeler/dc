@@ -1,3 +1,10 @@
+# [2.1.0-beta.2](https://github.com/vue-modeler/dc/compare/v2.1.0-beta.1...v2.1.0-beta.2) (2024-11-30)
+
+
+### Features
+
+* add isProvider function ([7d63ef8](https://github.com/vue-modeler/dc/commit/7d63ef8ab2aececa41bc3fe0749d9db2aba14200))
+
 # [2.1.0-beta.1](https://github.com/vue-modeler/dc/compare/v2.0.3...v2.1.0-beta.1) (2024-11-26)
 
 
