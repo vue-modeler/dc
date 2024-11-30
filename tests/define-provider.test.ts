@@ -1,25 +1,18 @@
 import { describe, it, beforeEach, afterEach, expect, vi, MockInstance } from 'vitest'
 import { effectScope } from 'vue'
-import { defineProvider, getContainer } from '../src'
+import { defineProvider, getContainer, isProvider } from '../src'
 import { DescriptorsContainer } from '../src/plugin/descriptors-container'
-// import * as vueModule from 'vue'
+import { DependencyFactory } from '../src/types'
 
 vi.mock('../src/get-container')
-// vi.mock('vue', 
-//   async () => {
-//     const actual = await vi.importActual<typeof import('vue')>('vue')
-//     return {  
-//       ...actual,
-//     }
-//   }
-// )
 
 describe('defineProvider function', () => {
-  it('returns provider as function', () => {
+  it('returns provider as function with __isProvider__ flag', () => {
     const dependencyFactory = () => 'test'
     const provider = defineProvider(dependencyFactory)
 
     expect(provider).toBeInstanceOf(Function)
+    expect(isProvider(provider)).toBe(true)
   })
 })
 
@@ -29,8 +22,8 @@ describe('Provider function', () => {
   let getFromContainerSpy: MockInstance
   let deleteFromContainerSpy: MockInstance
   let originalInstance: { test: string }
-  let dependencyFactory: () => { test: string }
-  let provider: () => { test: string }
+  let dependencyFactory: DependencyFactory<{ test: string }>
+  let provider: ReturnType<typeof defineProvider<{ test: string }>>
   
   beforeEach(() => {
     originalInstance = { test: 'test' }
@@ -70,19 +63,18 @@ describe('Provider function', () => {
     expect(result1).toBe(result2)
   })
 
-  it('deletes factory from container by the last scope stop', () => {
+  it('deletes factory from container when last scope is stopped', () => {
     const scope1 = effectScope(true)
     const scope2 = effectScope(true)
     scope1.run(() => provider())
     scope2.run(() => provider())
 
-    
     scope1.stop()
     expect(container.size).toBe(1)
     expect(deleteFromContainerSpy).not.toHaveBeenCalled()
 
     scope2.stop()
-    expect(deleteFromContainerSpy).toHaveBeenCalledTimes(1)
+    expect(deleteFromContainerSpy).toHaveBeenCalledWith(dependencyFactory)
     expect(container.size).toBe(0)
   })
 })

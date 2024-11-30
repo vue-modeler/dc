@@ -6,7 +6,7 @@ import { DependencyFactory, Provider } from './types'
 export function defineProvider<Target> (
   factory: DependencyFactory<Target>,
 ): Provider<Target> {
-  return (): Target => {
+  const provider = (): Target => {
     const container = getContainer()
 
     const dependencyDescriptor = container.get<Target>(factory) || container.add(factory)
@@ -28,5 +28,12 @@ export function defineProvider<Target> (
     
     return dependencyDescriptor.instance
   }
+
+  // Provider is a function without arguments that returns a dependency instance.
+  // To distinguish providers in runtime from other functions,
+  // we add a special property to the function.
+  provider.__isProvider__ = true
+
+  return provider
 }
   
