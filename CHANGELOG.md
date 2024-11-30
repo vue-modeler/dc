@@ -1,3 +1,10 @@
+# [2.1.0-beta.1](https://github.com/vue-modeler/dc/compare/v2.0.3...v2.1.0-beta.1) (2024-11-26)
+
+
+### Features
+
+* add ssr-state-service ([502802b](https://github.com/vue-modeler/dc/commit/502802b8b3fe756fb3f4d95021a8efc4d155e510))
+
 ## [2.0.3](https://github.com/vue-modeler/dc/compare/v2.0.2...v2.0.3) (2024-11-18)
 
 
