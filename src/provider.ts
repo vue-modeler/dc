@@ -3,13 +3,20 @@ import { onScopeDispose } from 'vue'
 import { getContainer } from './get-container'
 import { DependencyFactory, Provider } from './types'
 
-export function defineProvider<Target> (
+export function provider<Target> (
   factory: DependencyFactory<Target>,
+  options: { persistentInstance: boolean } = { persistentInstance: false },
 ): Provider<Target> {
+  const providerKey = Symbol('provider')
+
   const provider = (): Target => {
     const container = getContainer()
 
-    const dependencyDescriptor = container.get<Target>(factory) || container.add(factory)
+    const dependencyDescriptor = container.get<Target>(providerKey) || container.add(providerKey, factory)
+    
+    if (options.persistentInstance) {
+      return dependencyDescriptor.instance
+    }
     
     // Order of operations is important here.
     // The functions registered with onScopeDispose are called in direct order
@@ -22,7 +29,7 @@ export function defineProvider<Target> (
         return
       }
       
-      container.delete(dependencyDescriptor.factory)
+      container.delete(providerKey)
     })
     
     
@@ -33,7 +40,15 @@ export function defineProvider<Target> (
   // To distinguish providers in runtime from other functions,
   // we add a special property to the function.
   provider.__isProvider__ = true
-
-  return provider
-}
   
+  Object.defineProperty(
+    provider,
+    'asKey',
+    {
+      value: providerKey,
+      writable: false,
+    },
+  )
+
+  return provider as unknown as Provider<Target>
+}

@@ -1,11 +1,13 @@
 import { describe, it, expect } from 'vitest'
 import { isProvider } from '../src/is-provider'
-import { defineProvider } from '../src/define-provider'
+import { provider } from '../src'
 
 describe('isProvider function', () => {
   it('returns true for provider function', () => {
-    const provider = defineProvider(() => 'test')
-    expect(isProvider(provider)).toBe(true)
+    const dependencyFactory = () => 'test'
+    const useDependency = provider(dependencyFactory)
+    
+    expect(isProvider(useDependency)).toBe(true)
   })
 
   it('returns false for regular function', () => {

@@ -8,7 +8,7 @@ export class Descriptor<Target> {
   protected _instanceScope: EffectScope
 
   constructor (
-    readonly factory: DependencyFactory<Target>,
+    factory: DependencyFactory<Target>,
   ) {
     this._instanceScope = effectScope(true)
     const instance = this._instanceScope.run<Target>(() => factory())
