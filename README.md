@@ -11,11 +11,13 @@ Plugin implements a lightweight dependency container for Vue applications based 
 ### Key Features
 
 - 🗑️ Automatic cleanup when instances are not in use
+- 💾 Optional persistent instances that survive scope disposal
 - 🔒 Type Safe
 - 🪶 Lightweight
 - 🎯 Simple API
 - 🔄 Supports sharing any data type
 - ✨ Single responsibility principle compliant
+
 
 ## Why Use This?
 
@@ -40,29 +42,28 @@ This plugin:
 import { vueModelerDc } from '@vue-modeler/dc'
 import Vue from 'vue'
 
-...
-
 Vue.use(vueModelerDc)
-
 ...
 
 const app = new Vue()
 ...
-// Get instance by factory function
-const instance = app.$vueModelerDc.get(factoryFunction)
 
+const useDependency = provider(() => 'test')
+...
+// Get instance by factory function
+const instance = app.$vueModelerDc.get(useDependency.asKey).instance
 ```
 
 ## Basic Usage
 
 ### Define provider
 
-Create a provider using `defineProvider`:
+Create a provider using `provider`:
 
 ```typescript
-import { defineProvider } from '@vue-modeler/dc'
+import { provider } from '@vue-modeler/dc'
 
-const useMyProvider = defineProvider(() => {
+const useDependency = provider(() => {
   // Your factory function
   return {
     // Instance data/methods
@@ -71,17 +72,46 @@ const useMyProvider = defineProvider(() => {
 ```
 ### Usage in Components
 
-```vue
+```xml
 <template>
   <div>{{ model.state }}</div>
 </template>
 
 <script setup lang="ts">
-import { useMyProvider } from '@/providers/myProvider'
+import { useDependency } from '@/providers/myDependency'
 
-const model = useMyProvider()
+const model = useDependency()
 </script>
 ```
+### Persistent Instances
+
+You can create persistent instances that won't be disposed when all scopes are stopped. This is useful for services that need to maintain their state throughout the application lifecycle:
+
+```typescript
+const usePersistentService = provider(
+  () => new MyService(), // Factory function
+  { persistentInstance: true }, // Options
+)
+```
+
+Key features of persistent instances:
+- Instance remains in container after all scopes are disposed
+- State is preserved between different component mounts
+- Nested providers inside persistent provider also become persistent
+- Useful for global services, caches, or state managers
+
+Example with nested providers:
+```typescript
+// Nested provider becomes persistent when used inside persistent provider
+const useNestedService = provider(() => new NestedService())
+
+const usePersistentService = provider(
+  () => new MainService(useNestedService()), // nested service will be persistent
+  { persistentInstance: true },
+)
+```
+
+> **Note:** Use persistent instances carefully as they won't be automatically cleaned up by the container.
 
 ### Best Practices
 
@@ -135,9 +165,9 @@ export class MyModel {
 }
 
 // providers/myProvider.ts
-import { defineProvider } from '@vue-modeler/dc'
+import { provider } from '@vue-modeler/dc'
 import { MyModel } from '@/application/models/MyModel'
 import { api } from '@/infrastructure/api'
 
-export const useMyModel = defineProvider(() => new MyModel(api))
+export const useMyModel = provider(() => new MyModel(api))
 ```
