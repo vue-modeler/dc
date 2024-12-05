@@ -1,3 +1,10 @@
+# [2.1.0-beta.4](https://github.com/vue-modeler/dc/compare/v2.1.0-beta.3...v2.1.0-beta.4) (2024-12-05)
+
+
+### Features
+
+* export provider from ssr-state-service ([921426c](https://github.com/vue-modeler/dc/commit/921426c056204048de9aaf0f36f376828c1e5ca8))
+
 # [2.1.0-beta.3](https://github.com/vue-modeler/dc/compare/v2.1.0-beta.2...v2.1.0-beta.3) (2024-12-04)
 
 # [2.1.0-beta.2](https://github.com/vue-modeler/dc/compare/v2.1.0-beta.1...v2.1.0-beta.2) (2024-11-30)
