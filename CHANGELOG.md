@@ -1,3 +1,10 @@
+# [2.1.0-beta.5](https://github.com/vue-modeler/dc/compare/v2.1.0-beta.4...v2.1.0-beta.5) (2024-12-09)
+
+
+### Features
+
+* enhance SSR support and improve provider options ([f6f3226](https://github.com/vue-modeler/dc/commit/f6f32269d7cdcf065877cd2493bb9e67b878a2d9))
+
 # [2.1.0-beta.4](https://github.com/vue-modeler/dc/compare/v2.1.0-beta.3...v2.1.0-beta.4) (2024-12-05)
 
 
