@@ -1,11 +1,11 @@
 import { onScopeDispose } from 'vue'
 
 import { getContainer } from './get-container'
-import { DependencyFactory, Provider } from './types'
+import { DependencyFactory, Provider, ProviderOptions } from './types'
 
 export function provider<Target> (
   factory: DependencyFactory<Target>,
-  options: { persistentInstance: boolean } = { persistentInstance: false },
+  options: ProviderOptions = { persistentInstance: false },
 ): Provider<Target> {
   const providerKey = Symbol('provider')
 

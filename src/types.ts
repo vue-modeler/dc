@@ -11,3 +11,8 @@ export interface Provider<Target> {
 export interface DependencyContainerPlugin {
   readonly dependencyContainer: DescriptorsContainer
 }
+
+export interface ProviderOptions {
+  persistentInstance?: boolean
+  key?: symbol
+}

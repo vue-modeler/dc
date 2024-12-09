@@ -1,125 +1,109 @@
-import { describe, expect, it, beforeEach } from 'vitest'
-import { JsonValue, SerializerResult } from '../../src/ssr-state-service/types'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { SsrStateService } from '../../src/ssr-state-service/ssr-state-service'
 
-class TestSsrStateService extends SsrStateService {
-  get _stateFromServer() {
-    return this.stateFromServer
-  }
-
-  get _serializers() {
-    return this.serializers
-  }
-
-  set _isServer(value: boolean) {
-    Object.defineProperty(this, 'isServer', { value })
-  }
-}
-
 describe('SsrStateService', () => {
-  let service: TestSsrStateService
-
-  const createTestResult = (key: string, value: JsonValue): SerializerResult => ({
-    extractionKey: key,
-    value
-  })
+  let service: SsrStateService
 
   beforeEach(() => {
-    service = new TestSsrStateService({})
+    // Reset global state
+    globalThis.__INITIAL_STATE__ = undefined
   })
 
-  describe('constructor', () => {
-    it('should initialize with empty state when empty object provided', () => {
-      expect(service._stateFromServer).toEqual({})
+  describe('on server', () => {
+    beforeEach(() => {
+      vi.spyOn(global, 'window', 'get').mockReturnValue(undefined as unknown as Window & typeof globalThis)
+      service = new SsrStateService()
     })
 
-    it('should use provided state', () => {
+    it('should add and remove serializers', () => {
+      const serializer = () => ({ extractionKey: 'test', value: 'value' })
+      service.addSerializer(serializer)
+      expect(service.removeSerializer(serializer)).toBe(true)
+    })
+
+    it('should serialize state from all serializers', () => {
+      const serializer1 = () => ({ extractionKey: 'test1', value: 'value1' })
+      const serializer2 = () => ({ extractionKey: 'test2', value: 'value2' })
+      
+      service.addSerializer(serializer1)
+      service.addSerializer(serializer2)
+
+      const state = {}
+      const result = service.injectState(state)
+      
+      expect(result[service.stateKey]).toEqual({
+        test1: 'value1',
+        test2: 'value2'
+      })
+    })
+  })
+
+  describe('on client', () => {
+    beforeEach(() => {
+      vi.spyOn(global, 'window', 'get').mockReturnValue({} as Window & typeof globalThis)
+      service = new SsrStateService()
+    })
+
+    it('should not add or remove serializers', () => {
+      const serializer = () => ({ extractionKey: 'test', value: 'value' })
+      service.addSerializer(serializer)
+      expect(service.removeSerializer(serializer)).toBe(false)
+    })
+
+    it('should extract state from string initial state', () => {
       const initialState = {
-        test: createTestResult('test', 'value')
+        __SSR_STATE__: {
+          test: 'value'
+        }
       }
-      service = new TestSsrStateService(initialState)
-      expect(service._stateFromServer).toEqual(initialState)
+      globalThis.__INITIAL_STATE__ = JSON.stringify(initialState)
+      
+      service = new SsrStateService()
+      const result = service.extractState('test')
+      expect(result).toEqual('value')
     })
 
-    it('should set isServer based on window availability', () => {
-      expect(service.isServer).toBe(typeof window === 'undefined')
-    })
-  })
-
-  describe('extractState', () => {
-    it('should return undefined for non-existent key', () => {
-      expect(service.extractState('nonexistent')).toBeUndefined()
-    })
-
-    it('should return state for existing key', () => {
-      const state = createTestResult('test', 'value')
-      service = new TestSsrStateService({ test: state })
-      expect(service.extractState('test')).toEqual(state)
-    })
-  })
-
-  describe('serializers', () => {
-    const mockSerializer = () => createTestResult('test', 'value')
-
-    describe('on server', () => {
-      beforeEach(() => {
-        service._isServer = true
-      })
-
-      it('should add serializer and return the serializer function', () => {
-        const returned = service.addSerializer(mockSerializer)
-        expect(returned).toBe(mockSerializer)
-        expect(service._serializers.size).toBe(1)
-      })
-
-      it('should remove serializer and return true if exists', () => {
-        service.addSerializer(mockSerializer)
-        const result = service.removeSerializer(mockSerializer)
-        expect(result).toBe(true)
-        expect(service._serializers.size).toBe(0)
-      })
-
-      it('should return false when removing non-existing serializer', () => {
-        const result = service.removeSerializer(mockSerializer)
-        expect(result).toBe(false)
-      })
-
-      it('should serialize all registered serializers', () => {
-        const serializer1 = () => createTestResult('test1', 'value1')
-        const serializer2 = () => createTestResult('test2', 'value2')
-
-        service.addSerializer(serializer1)
-        service.addSerializer(serializer2)
-
-        const serialized = service.serialize()
-        expect(serialized).toEqual({
-          test1: createTestResult('test1', 'value1'),
-          test2: createTestResult('test2', 'value2')
-        })
-      })
+    it('should extract state from object initial state', () => {
+      const initialState = {
+        __SSR_STATE__: {
+          test: 'value'
+        }
+      }
+      globalThis.__INITIAL_STATE__ = initialState
+      
+      service = new SsrStateService()
+      const result = service.extractState('test')
+      expect(result).toEqual('value')
     })
 
-    describe('on client', () => {
-      beforeEach(() => {
-        service._isServer = false
-      })
+    it('should handle invalid initial state', () => {
+      globalThis.__INITIAL_STATE__ = 'invalid json'
+      
+      expect(() => {
+        service = new SsrStateService()
+      }).toThrow()
+      
+      expect(service.extractState('test')).toBeUndefined()
+    })
 
-      it('should not add serializer and return the serializer function', () => {
-        const result = service.addSerializer(mockSerializer)
-        expect(result).toBe(mockSerializer)
-        expect(service._serializers.size).toBe(0)
-      })
+    it('should not modify state on inject', () => {
+      const state = { existing: 'value' }
+      const result = service.injectState(state)
+      expect(result).toEqual(state)
+    })
 
-      it('should return false when removing serializer', () => {
-        const result = service.removeSerializer(mockSerializer)
-        expect(result).toBe(false)
-      })
+    it('should handle missing initial state', () => {
+      globalThis.__INITIAL_STATE__ = undefined
+      service = new SsrStateService()
+      expect(service.extractState('test')).toBeUndefined()
+    })
 
-      it('should always serialize to empty state', () => {
-        service.addSerializer(mockSerializer) // Should not actually add
-        const result = service.serialize()
-        expect(result).toEqual({})
-      })
+    it('should handle non-object state key', () => {
+      globalThis.__INITIAL_STATE__ = {
+        __SSR_STATE__: 'not an object'
+      }
+      service = new SsrStateService()
+      expect(service.extractState('test')).toBeUndefined()
     })
   })
 })

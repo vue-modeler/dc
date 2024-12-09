@@ -15,7 +15,6 @@ export type UtcDateAndTime = Date
 export interface SerializerResult<Value extends JsonValue = JsonValue> {
   extractionKey: string
   value: Value
-  expiredAt?: UtcIsoDateAndTime
 }
 
 export interface SsrStateProvider {
@@ -26,7 +25,7 @@ export interface SsrStateSerializer {
   readonly isServer: boolean
   addSerializer: <Value extends JsonValue>(serializer: () => SerializerResult<Value>) => () => SerializerResult<Value>
   removeSerializer: (serializer: () => SerializerResult) => void
-  serialize: () => Record<SerializerResult['extractionKey'], SerializerResult>
+  injectState: (state: Record<string, unknown>) => Record<string, unknown>
 }
 
-export type SerializedState = Record<SerializerResult['extractionKey'], SerializerResult>
+export type SerializedState = Record<SerializerResult['extractionKey'], SerializerResult['value']>
