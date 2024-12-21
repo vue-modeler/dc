@@ -1,3 +1,5 @@
+# [2.1.0-beta.6](https://github.com/vue-modeler/dc/compare/v2.1.0-beta.5...v2.1.0-beta.6) (2024-12-21)
+
 # [2.1.0-beta.5](https://github.com/vue-modeler/dc/compare/v2.1.0-beta.4...v2.1.0-beta.5) (2024-12-09)
 
 
