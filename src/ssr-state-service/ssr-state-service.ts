@@ -1,4 +1,4 @@
-import { JsonValue, SerializedState, SerializerResult, SsrStateProvider, SsrStateSerializer } from './types'
+import { SerializedState, SerializerResult, SsrStateProvider, SsrStateSerializer } from './types'
   
 declare global {
   // eslint-disable-next-line no-var
@@ -8,7 +8,7 @@ declare global {
 export class SsrStateService implements SsrStateSerializer, SsrStateProvider {
   readonly isServer: boolean = true
   readonly stateKey: string = '__SSR_STATE__'
-  protected serializers = new Set<() => SerializerResult<JsonValue>>()
+  protected serializers = new Set<() => SerializerResult<unknown>>()
   protected stateFromServer: SerializedState = {}
   
   constructor () {
@@ -40,7 +40,7 @@ export class SsrStateService implements SsrStateSerializer, SsrStateProvider {
     return this.stateFromServer[key]
   }
 
-  addSerializer<Value extends JsonValue> (serializer: () => SerializerResult<Value>): () => SerializerResult<Value> {
+  addSerializer<Value> (serializer: () => SerializerResult<Value>): () => SerializerResult<Value> {
     if (this.isServer) {
       this.serializers.add(serializer)
     }
@@ -48,7 +48,7 @@ export class SsrStateService implements SsrStateSerializer, SsrStateProvider {
     return serializer
   }
 
-  removeSerializer (serializer: () => SerializerResult<JsonValue>): boolean {
+  removeSerializer (serializer: () => SerializerResult<unknown>): boolean {
     if (this.isServer) {
       return this.serializers.delete(serializer)
     }

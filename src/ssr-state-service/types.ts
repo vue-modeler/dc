@@ -1,18 +1,8 @@
-export type JsonValue = 
-  | string 
-  | number
-  | boolean
-  | Record<string, JsonValue>
-  | JsonValue[]
-  | null
-
-export type JsonObject = Record<string, JsonValue>
-
 export type UtcIsoDateAndTime = string
 
 export type UtcDateAndTime = Date
 
-export interface SerializerResult<Value extends JsonValue> {
+export interface SerializerResult<Value> {
   extractionKey: string
   value: Value
 }
@@ -23,8 +13,8 @@ export interface SsrStateProvider {
 
 export interface SsrStateSerializer {
   readonly isServer: boolean
-  addSerializer: <Value extends JsonValue>(serializer: () => SerializerResult<Value>) => () => SerializerResult<Value>
-  removeSerializer: (serializer: () => SerializerResult<JsonValue>) => void
+  addSerializer: <Value>(serializer: () => SerializerResult<Value>) => () => SerializerResult<Value>
+  removeSerializer: (serializer: () => SerializerResult<unknown>) => void
   injectState: (state: Record<string, unknown>) => void
 }     
 
