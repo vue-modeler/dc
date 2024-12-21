@@ -8,7 +8,7 @@ declare global {
 export class SsrStateService implements SsrStateSerializer, SsrStateProvider {
   readonly isServer: boolean = true
   readonly stateKey: string = '__SSR_STATE__'
-  protected serializers = new Set<() => SerializerResult>()
+  protected serializers = new Set<() => SerializerResult<JsonValue>>()
   protected stateFromServer: SerializedState = {}
   
   constructor () {
@@ -36,11 +36,11 @@ export class SsrStateService implements SsrStateSerializer, SsrStateProvider {
     this.stateFromServer = initialState[this.stateKey] as SerializedState
   }
     
-  extractState<Value extends JsonValue> (key: string): SerializerResult<Value> | undefined {
-    return this.stateFromServer[key] as unknown as SerializerResult<Value> | undefined
+  extractState (key: string): unknown {
+    return this.stateFromServer[key]
   }
 
-  addSerializer<Value extends JsonValue = JsonValue> (serializer: () => SerializerResult<Value>): () => SerializerResult<Value> {
+  addSerializer<Value extends JsonValue> (serializer: () => SerializerResult<Value>): () => SerializerResult<Value> {
     if (this.isServer) {
       this.serializers.add(serializer)
     }
@@ -48,7 +48,7 @@ export class SsrStateService implements SsrStateSerializer, SsrStateProvider {
     return serializer
   }
 
-  removeSerializer (serializer: () => SerializerResult): boolean {
+  removeSerializer (serializer: () => SerializerResult<JsonValue>): boolean {
     if (this.isServer) {
       return this.serializers.delete(serializer)
     }
@@ -60,20 +60,22 @@ export class SsrStateService implements SsrStateSerializer, SsrStateProvider {
     const state: SerializedState = {}
     for (const serializer of this.serializers) {
       const result = serializer()
+      if (result.value === undefined) {
+        continue
+      }
+
       state[result.extractionKey] = result.value
     }
 
     return state
   }
 
-  injectState (state: Record<string, unknown>): Record<string, unknown> {
-    if (!this.isServer) {
-      return state
+  injectState (state: Record<string, unknown>): void {
+    if (!this.isServer) { 
+      return
     }
 
     state[this.stateKey] = this.serialize()
-
-    return state
   }
 }
 
