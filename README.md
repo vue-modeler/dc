@@ -11,6 +11,8 @@ Plugin implements a lightweight dependency container for Vue applications based 
 ### Key Features
 
 - 🗑️ Automatic cleanup when instances are not in use
+- 💾 Optional persistent instances that survive scope disposal
+- 📦 SSR compatible: includes ssr state service to collect and serialize states for further transfer to the client
 - 🔒 Type Safe
 - 🪶 Lightweight
 - 🎯 Simple API
@@ -40,29 +42,28 @@ This plugin:
 import { vueModelerDc } from '@vue-modeler/dc'
 import Vue from 'vue'
 
-...
-
 Vue.use(vueModelerDc)
-
 ...
 
 const app = new Vue()
 ...
-// Get instance by factory function
-const instance = app.$vueModelerDc.get(factoryFunction)
 
+const useDependency = provider(() => 'test')
+...
+// Get instance by factory function
+const instance = app.$vueModelerDc.get(useDependency.asKey).instance
 ```
 
 ## Basic Usage
 
 ### Define provider
 
-Create a provider using `defineProvider`:
+Create a provider using `provider`:
 
 ```typescript
-import { defineProvider } from '@vue-modeler/dc'
+import { provider } from '@vue-modeler/dc'
 
-const useMyProvider = defineProvider(() => {
+const useDependency = provider(() => {
   // Your factory function
   return {
     // Instance data/methods
@@ -71,16 +72,169 @@ const useMyProvider = defineProvider(() => {
 ```
 ### Usage in Components
 
-```vue
+```xml
 <template>
   <div>{{ model.state }}</div>
 </template>
 
 <script setup lang="ts">
-import { useMyProvider } from '@/providers/myProvider'
+import { useDependency } from '@/providers/myDependency'
 
-const model = useMyProvider()
+const model = useDependency()
 </script>
+```
+### Persistent Instances
+
+You can create persistent instances that won't be disposed when all scopes are stopped. This is useful for services that need to maintain their state throughout the application lifecycle:
+
+```typescript
+const usePersistentService = provider(
+  () => new MyService(), // Factory function
+  { persistentInstance: true }, // Options
+)
+```
+
+Key features of persistent instances:
+- Instance remains in container after all scopes are disposed
+- State is preserved between different component mounts
+- Nested providers inside persistent provider also become persistent
+- Useful for global services, caches, or state managers
+
+Example with nested providers:
+```typescript
+// Nested provider becomes persistent when used inside persistent provider
+const useNestedService = provider(() => new NestedService())
+
+const usePersistentService = provider(
+  () => new MainService(useNestedService()), // nested service will be persistent
+  { persistentInstance: true },
+)
+```
+
+> **Note:** Use persistent instances carefully as they won't be automatically cleaned up by the container.
+
+### SSR
+
+In example below we use default SsrStateService and provider.
+But you can implement your own SsrStateService and use it absolutely the same way.
+
+#### **1. Create isomorphic model**
+
+Any models whitch use ssr state service should be isomorphic.
+It means that model should be able:
+- on server to serialize state to transfer to client
+- on client to extract state from server and set it as default value for state ref.
+
+```typescript
+class MyIsomorphicModel {
+  protected _state: ShallowRef<Record<string, unknown>>
+
+  constructor(
+    private api: Api,
+    private ssrStateService: SsrStateService,
+  ) {
+    // Extract state catched from server and set it as default value for state ref.
+    const stateFromServer = ssrStateService.extractState<Record<string, unknown>>('myModelState')
+    this._state = shallowRef(stateFromServer || {})
+    
+   
+    // Add serializer for SSR. It will be called when state is serialized
+    this.ssrStateService.addSerializer(() => ({
+      extractionKey: 'myModelState',
+      value: this._state.value,
+    }))
+
+    // ...
+  }
+
+  get state(): Readonly<Record<string, unknown>> {
+    return this._state.value
+  }
+
+  async initialize(): Promise<void> {
+    if (stateFromServer) {
+      return
+    }
+
+    this._state.value = await this.api.fetchState()
+    // ...
+  }
+}
+```
+
+#### **2. Use isomorphic model in component**
+
+```xml
+<template>
+  <div>{{ model.state }}</div>
+</template>
+
+<script setup lang="ts">
+import { useMyIsomorphicModel } from '@/providers/myIsomorphicModel'
+
+const model = useMyIsomorphicModel()
+
+onServerPrefetch(async () => {
+  // component is rendered as part of the initial request
+  // pre-fetch data on server as it is faster than on the client
+  await model.initialize()
+})
+</script>
+```
+
+#### **3. Serialize state for SSR**
+Usually there is the server entry file where app executes state hydration.
+
+To serialize state for SSR, use `useSsrState.asKey` to get ssr state service instance.
+Don't use `useSsrState` provider directly. This may cause an error, because in that place you are out of Vue application scope.
+
+```typescript
+// somewhere in your server entry file
+import { useSsrState } from '@vue-modeler/dc'
+
+function ssrHydration(ctx: Context): void {
+  // get ssr state service instance
+  const ssrStateService = app.$vueModelerDc.get(useSsrState.asKey).instance
+
+  // inject state to ctx.state
+  ctx.state = ssrStateService.injectState(ctx.state)
+}
+```
+
+#### **4. Restore state on client**
+
+On client side state will be restored from `__INITIAL_STATE__` variable automatically inside SsrStateService constructor.
+
+In example above inside constructor of `MyIsomorphicModel` we have use ssrStateService to restore model state from server.
+
+#### **5. Create your own SsrStateService**
+
+You can create your own SsrStateService and use it absolutely the same way.
+
+```typescript
+// ... my-ssr-state-service.ts
+import { SsrStateService } from '@vue-modeler/dc'
+
+class MySsrStateService extends SsrStateService {
+  constructor() {
+    super()
+    this.isServer = true
+  }
+}
+
+// ... somewhere dc/ssr-state-service.ts
+const useMySsrStateService = provider(() => new MySsrStateService())
+
+// somewhere in your server entry file
+import { useMySsrStateService } from './src/dc/ssr-state-service'
+
+function ssrHydration(ctx: Context): void {
+  // get ssr state service instance
+  const ssrStateService = app.$vueModelerDc.get(useMySsrStateService.asKey).instance
+
+  // inject state to ctx.state
+  ctx.state = ssrStateService.injectState(ctx.state)
+}
 ```
 
 ### Best Practices
@@ -135,9 +289,9 @@ export class MyModel {
 }
 
 // providers/myProvider.ts
-import { defineProvider } from '@vue-modeler/dc'
+import { provider } from '@vue-modeler/dc'
 import { MyModel } from '@/application/models/MyModel'
 import { api } from '@/infrastructure/api'
 
-export const useMyModel = defineProvider(() => new MyModel(api))
+export const useMyModel = provider(() => new MyModel(api))
 ```

@@ -1,3 +1,35 @@
+# [2.1.0-beta.6](https://github.com/vue-modeler/dc/compare/v2.1.0-beta.5...v2.1.0-beta.6) (2024-12-21)
+
+# [2.1.0-beta.5](https://github.com/vue-modeler/dc/compare/v2.1.0-beta.4...v2.1.0-beta.5) (2024-12-09)
+
+
+### Features
+
+* enhance SSR support and improve provider options ([f6f3226](https://github.com/vue-modeler/dc/commit/f6f32269d7cdcf065877cd2493bb9e67b878a2d9))
+
+# [2.1.0-beta.4](https://github.com/vue-modeler/dc/compare/v2.1.0-beta.3...v2.1.0-beta.4) (2024-12-05)
+
+
+### Features
+
+* export provider from ssr-state-service ([921426c](https://github.com/vue-modeler/dc/commit/921426c056204048de9aaf0f36f376828c1e5ca8))
+
+# [2.1.0-beta.3](https://github.com/vue-modeler/dc/compare/v2.1.0-beta.2...v2.1.0-beta.3) (2024-12-04)
+
+# [2.1.0-beta.2](https://github.com/vue-modeler/dc/compare/v2.1.0-beta.1...v2.1.0-beta.2) (2024-11-30)
+
+
+### Features
+
+* add isProvider function ([7d63ef8](https://github.com/vue-modeler/dc/commit/7d63ef8ab2aececa41bc3fe0749d9db2aba14200))
+
+# [2.1.0-beta.1](https://github.com/vue-modeler/dc/compare/v2.0.3...v2.1.0-beta.1) (2024-11-26)
+
+
+### Features
+
+* add ssr-state-service ([502802b](https://github.com/vue-modeler/dc/commit/502802b8b3fe756fb3f4d95021a8efc4d155e510))
+
 ## [2.0.3](https://github.com/vue-modeler/dc/compare/v2.0.2...v2.0.3) (2024-11-18)
 
 

@@ -112,5 +112,17 @@ describe('Descriptor', () => {
     expect(mockInstance.destructor).toHaveBeenCalled()
   })
 
-  // Add new tests here based on the changes you've made to the Descriptor class
+  it('should handle disposal when parent scope is immediately disposed', () => {
+    mockInstance.destructor = vi.fn()
+    const descriptor = new Descriptor(mockFactory)
+    
+    // Simulate immediate disposal
+    descriptor.subscribeOnParentScopeDispose(onScopeDispose)
+    const disposeFn = (onScopeDispose as ReturnType<typeof vi.fn>).mock.calls[0][0] as () => void
+    disposeFn()
+
+    expect(mockInstance.destructor).toHaveBeenCalledTimes(1)
+    expect(mockEffectScope.stop).toHaveBeenCalledTimes(1)
+  })
+  
 })
