@@ -1,3 +1,15 @@
+## [2.1.1-beta.1](https://github.com/vue-modeler/dc/compare/v2.1.0...v2.1.1-beta.1) (2025-08-01)
+
+
+### Code Refactoring
+
+* **plugin:** update dependencies and improve Vue 3 compatibility ([192dad4](https://github.com/vue-modeler/dc/commit/192dad4a488fbf367993c3a7c48e0a4c32925735))
+
+
+### BREAKING CHANGES
+
+* **plugin:** Support for Vue 3 has been implemented. Vue 2 is no longer supported in the current version.
+
 # [2.1.0](https://github.com/vue-modeler/dc/compare/v2.0.3...v2.1.0) (2025-04-03)
 
 
