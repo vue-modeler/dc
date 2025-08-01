@@ -1,18 +1,13 @@
-import { getCurrentInstance } from 'vue'
+import { inject } from 'vue'
 
 import { DescriptorsContainer } from './plugin/descriptors-container'
 
-export function getContainer (): DescriptorsContainer {
+export function getContainer(): DescriptorsContainer {
+  const container = inject<DescriptorsContainer>('vueModelerDc')
   
-  const currentInstance = getCurrentInstance()?.proxy
-  
-  if (!currentInstance) {
-    throw new Error('Current instance is undefined')
+  if (!container) {
+    throw new Error('Vue Modeler DC plugin not installed')
   }
   
-  if (!currentInstance.$vueModelerDc) {
-    throw new Error('Dependency container undefined. Check plugin setup')
-  }
-
-  return currentInstance.$vueModelerDc
+  return container
 }
