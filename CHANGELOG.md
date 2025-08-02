@@ -1,3 +1,15 @@
+# [2.2.0-beta.1](https://github.com/vue-modeler/dc/compare/v2.1.1-beta.1...v2.2.0-beta.1) (2025-08-02)
+
+
+### Bug Fixes
+
+* **releaserc:** update release rules for refactor and fix types ([d3c77df](https://github.com/vue-modeler/dc/commit/d3c77dfed9539448425e7848f7dd153524f6c793))
+
+
+### BREAKING CHANGES
+
+* **releaserc:** Support for Vue 3 has been implemented. Vue 2 is no longer supported in the current version.
+
 ## [2.1.1-beta.1](https://github.com/vue-modeler/dc/compare/v2.1.0...v2.1.1-beta.1) (2025-08-01)
 
 
