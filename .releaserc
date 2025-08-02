@@ -10,7 +10,8 @@
                 "preset": "angular",
                 "releaseRules": [
                     { "type": "docs", "scope": "README", "release": "patch" },
-                    { "type": "refactor", "release": "patch" },
+                    { "type": "refactor", "breaking": false, "release": "patch" },
+                    { "type": "fix", "breaking": false, "release": "minor" },
                     { "scope": "no-release", "release": false }
                 ]
             }
