@@ -1,3 +1,5 @@
+# [3.0.0-beta.2](https://github.com/vue-modeler/dc/compare/v3.0.0-beta.1...v3.0.0-beta.2) (2025-08-03)
+
 # [3.0.0-beta.1](https://github.com/vue-modeler/dc/compare/v2.2.0-beta.1...v3.0.0-beta.1) (2025-08-02)
 
 
