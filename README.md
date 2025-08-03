@@ -2,7 +2,14 @@
 
 [![test](https://github.com/vue-modeler/dc/actions/workflows/test.yml/badge.svg)](https://github.com/vue-modeler/dc/actions/workflows/test.yml)
 
-> Compatible with Vue 2 only.  
+## Version Compatibility
+
+| @vue-modeler/dc | Vue |
+|----------------|-----|
+| 3.x.x          | ^3.0.0 |
+| 2.x.x          | ^2.7.0 |
+
+> **Note:** Version 3.x.x introduces breaking changes and requires Vue 3. For Vue 2 support, use version 2.x.x.
 
 ## Overview
 
@@ -36,22 +43,20 @@ This plugin:
 > 1. The container manages instance scope, not state
 > 2. SSR compatible, but doesn't handle state transfer from server to client
 
-## Instalation 
+## Installation 
 
 ```js
+import { createApp } from 'vue'
 import { vueModelerDc } from '@vue-modeler/dc'
-import Vue from 'vue'
 
-Vue.use(vueModelerDc)
-...
-
-const app = new Vue()
-...
+const app = createApp(App)
+app.use(vueModelerDc)
+app.mount('#app')
 
 const useDependency = provider(() => 'test')
 ...
 // Get instance by factory function
-const instance = app.$vueModelerDc.get(useDependency.asKey).instance
+const instance = app.config.globalProperties.$vueModelerDc.get(useDependency.asKey).instance
 ```
 
 ## Basic Usage

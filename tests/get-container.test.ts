@@ -1,28 +1,28 @@
 import { describe, expect, it, vi } from 'vitest'
-import { getCurrentInstance } from 'vue'
+import { inject } from 'vue'
 import { DescriptorsContainer } from '../src/plugin/descriptors-container'
 import { getContainer } from '../src/get-container'
-import '../src/vue.d.ts'
 
 vi.mock('vue')
+vi.mock('../src/plugin/vue-modeler-dc')
 
 describe('getContainer function', () => {
-  it('returns container from current VueComponent instance if it exists', () => {
+  it('returns container from inject if available', () => {
     const container = new DescriptorsContainer()
-    vi.mocked(getCurrentInstance).mockReturnValue({ proxy: { $vueModelerDc: container } } as ReturnType<typeof getCurrentInstance>)
+    vi.mocked(inject).mockReturnValue(container)
 
     expect(getContainer()).toBe(container)
   })
 
-  it('throws error if $vueModelerDc is undefined', () => {
-    vi.mocked(getCurrentInstance).mockReturnValue({ proxy: { $vueModelerDc: undefined } } as ReturnType<typeof getCurrentInstance>)
-    
-    expect(() => getContainer()).toThrow('Dependency container undefined. Check plugin setup')  
+  it('returns global container when inject returns null', () => {
+    vi.mocked(inject).mockReturnValue(null)
+
+    expect(() => getContainer()).toThrow('Vue Modeler DC plugin not installed')
   })
 
-  it('throws error if getCurrentInstance is undefined', () => {
-    vi.mocked(getCurrentInstance).mockReturnValue(null)
-    
-    expect(() => getContainer()).toThrow('Current instance is undefined')  
+  it('throws error when inject returns null', () => {
+    vi.mocked(inject).mockReturnValue(null)
+
+    expect(() => getContainer()).toThrow('Vue Modeler DC plugin not installed')
   })
 })
