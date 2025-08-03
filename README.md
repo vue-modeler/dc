@@ -45,6 +45,18 @@ This plugin:
 
 ## Installation 
 
+### Install Package
+
+```bash
+# For Vue 3
+npm install @vue-modeler/dc@^3.0.0
+
+# For Vue 2
+npm install @vue-modeler/dc@^2.0.0
+```
+
+### Vue 3 Setup
+
 ```js
 import { createApp } from 'vue'
 import { vueModelerDc } from '@vue-modeler/dc'
@@ -53,10 +65,20 @@ const app = createApp(App)
 app.use(vueModelerDc)
 app.mount('#app')
 
-const useDependency = provider(() => 'test')
-...
-// Get instance by factory function
-const instance = app.config.globalProperties.$vueModelerDc.get(useDependency.asKey).instance
+```
+
+### Vue 2 Setup
+
+```js
+import Vue from 'vue'
+import { vueModelerDc } from '@vue-modeler/dc'
+
+Vue.use(vueModelerDc)
+
+new Vue({
+  // your app configuration
+}).$mount('#app')
+
 ```
 
 ## Basic Usage
@@ -88,6 +110,7 @@ import { useDependency } from '@/providers/myDependency'
 const model = useDependency()
 </script>
 ```
+
 ### Persistent Instances
 
 You can create persistent instances that won't be disposed when all scopes are stopped. This is useful for services that need to maintain their state throughout the application lifecycle:
