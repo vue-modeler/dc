@@ -2,7 +2,14 @@
 
 [![test](https://github.com/vue-modeler/dc/actions/workflows/test.yml/badge.svg)](https://github.com/vue-modeler/dc/actions/workflows/test.yml)
 
-> Compatible with Vue 3.  
+## Version Compatibility
+
+| @vue-modeler/dc | Vue |
+|----------------|-----|
+| 3.x.x          | ^3.0.0 |
+| 2.x.x          | ^2.7.0 |
+
+> **Note:** Version 3.x.x introduces breaking changes and requires Vue 3. For Vue 2 support, use version 2.x.x.
 
 ## Overview
 
