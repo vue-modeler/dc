@@ -1,3 +1,9 @@
+## [2.2.0-v2-beta.3](https://github.com/vue-modeler/dc/compare/v2.2.0-v2-beta.2...v2.2.0-v2-beta.3) (2026-05-27)
+
+### Features
+
+* **container, plugin:** added the ability to pass a container instance as vueapp parameters when creating ([19a1f50](https://github.com/vue-modeler/dc/commit/19a1f5075cd223bab6d7883da3c4d6372dc8d354))
+
 ## [2.2.0-v2-beta.2](https://github.com/vue-modeler/dc/compare/v2.2.0-v2-beta.1...v2.2.0-v2-beta.2) (2026-05-27)
 
 ### Bug Fixes
