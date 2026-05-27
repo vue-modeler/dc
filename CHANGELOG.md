@@ -1,3 +1,9 @@
+## [2.2.0-v2-beta.2](https://github.com/vue-modeler/dc/compare/v2.2.0-v2-beta.1...v2.2.0-v2-beta.2) (2026-05-27)
+
+### Bug Fixes
+
+* **container-stack:**  inject has been replaced  to getCurrentInstance to get container instance ([337b7b7](https://github.com/vue-modeler/dc/commit/337b7b799517e9224542649ba4d23ea8b9064410))
+
 ## [2.2.0-v2-beta.1](https://github.com/vue-modeler/dc/compare/v2.1.0...v2.2.0-v2-beta.1) (2026-05-27)
 
 ### Features
