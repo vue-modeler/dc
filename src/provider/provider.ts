@@ -7,6 +7,8 @@ import {
   ProviderOptions,
 } from '../types'
 
+const IS_SERVER_SIDE = typeof window === 'undefined'
+
 export function provider<Target> (
   initialFactory: DepFactory<Target>,
   options: ProviderOptions = { persistentInstance: false },
@@ -14,7 +16,6 @@ export function provider<Target> (
   const providerKey = options.key ?? Symbol('provider')
   let currentFactory = initialFactory
   let redifined = false
-  const isServerSide = typeof window === 'undefined'
   
   const provider = ((): Target => {
     const dc = getContainer()
@@ -30,7 +31,7 @@ export function provider<Target> (
     // If we are in a server-side context, onScopeDispose is not available,
     // components are not disposed.
     // All descriptors are persistent and will be  destroyed along with the container.
-    if (isServerSide) {
+    if (IS_SERVER_SIDE) {
       return dependencyDescriptor.instance
     }
 
