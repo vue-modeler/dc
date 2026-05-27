@@ -1,3 +1,9 @@
+## [2.2.0-v2-beta.4](https://github.com/vue-modeler/dc/compare/v2.2.0-v2-beta.3...v2.2.0-v2-beta.4) (2026-05-27)
+
+### Features
+
+* **container, provider:** enhance dependency resolution with cyclic detection and server-side handling ([f01f185](https://github.com/vue-modeler/dc/commit/f01f185100a4a29cb172400e0910291b813fa834))
+
 ## [2.2.0-v2-beta.3](https://github.com/vue-modeler/dc/compare/v2.2.0-v2-beta.2...v2.2.0-v2-beta.3) (2026-05-27)
 
 ### Features
