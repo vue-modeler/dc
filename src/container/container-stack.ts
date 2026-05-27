@@ -1,4 +1,4 @@
-import { inject } from 'vue'
+import { getCurrentInstance } from 'vue'
 
 import { DescriptorContainer } from './descriptor-container'
 
@@ -27,12 +27,15 @@ export function popContainer (): void {
 
 
 export function getContainerFromCurrentVueApp (): DescriptorContainer {
-  const container = inject<DescriptorContainer>('vueModelerDc')
-  
-  if (!container) {
-    throw new Error('Vue Modeler DC plugin not installed')
+  const currentInstance = getCurrentInstance()?.proxy as
+    | (Record<string, unknown> & { $vueModelerDc?: DescriptorContainer })
+    | undefined
+
+  const fromInstance = currentInstance?.$vueModelerDc
+  if (fromInstance) {
+    return fromInstance
   }
-  
-  return container
+
+  throw new Error('Vue Modeler DC plugin not installed')
 }
 

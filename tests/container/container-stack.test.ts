@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { inject } from 'vue'
+import { getCurrentInstance } from 'vue'
 
 import { DescriptorContainer } from '../../src/container/descriptor-container'
 import {
@@ -14,9 +14,15 @@ vi.mock('vue', async () => {
 
   return {
     ...actual,
-    inject: vi.fn(),
+    getCurrentInstance: vi.fn(),
   }
 })
+
+interface InstanceProxy {
+  proxy: {
+    $vueModelerDc: DescriptorContainer
+  } & Vue
+}
 
 function clearContainerStack (): void {
   for (;;) {
@@ -31,22 +37,23 @@ function clearContainerStack (): void {
 describe('container stack', () => {
   beforeEach(() => {
     clearContainerStack()
-    vi.mocked(inject).mockReset()
+    vi.mocked(getCurrentInstance).mockReset()
+    vi.mocked(getCurrentInstance).mockReturnValue(null)
   })
 
   afterEach(() => {
     clearContainerStack()
   })
 
-  it('returns injected container from the current Vue app', () => {
+  it('returns container from current instance proxy when available', () => {
     const container = new DescriptorContainer()
-    vi.mocked(inject).mockReturnValue(container)
+    vi.mocked(getCurrentInstance).mockReturnValue({ proxy: { $vueModelerDc: container } } as never as InstanceProxy)
 
     expect(getContainerFromCurrentVueApp()).toBe(container)
   })
 
   it('throws when plugin container is missing', () => {
-    vi.mocked(inject).mockReturnValue(undefined)
+    vi.mocked(getCurrentInstance).mockReturnValue(null)
 
     expect(() => getContainerFromCurrentVueApp()).toThrow(
       'Vue Modeler DC plugin not installed',
@@ -54,9 +61,7 @@ describe('container stack', () => {
   })
 
   it('prefers the active stack container over inject fallback', () => {
-    const injectedContainer = new DescriptorContainer()
     const stackedContainer = new DescriptorContainer()
-    vi.mocked(inject).mockReturnValue(injectedContainer)
 
     pushContainer(stackedContainer)
 
@@ -64,15 +69,13 @@ describe('container stack', () => {
   })
 
   it('does not push the same container twice in a row', () => {
-    const injectedContainer = new DescriptorContainer()
     const container = new DescriptorContainer()
-    vi.mocked(inject).mockReturnValue(injectedContainer)
 
     pushContainer(container)
     pushContainer(container)
     popContainer()
 
-    expect(getContainer()).toBe(injectedContainer)
+    expect(() => getContainer()).toThrow('Vue Modeler DC plugin not installed')
   })
 
   it('throws when popping an empty stack', () => {

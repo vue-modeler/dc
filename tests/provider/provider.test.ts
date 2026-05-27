@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { effectScope, inject } from 'vue'
+import { effectScope, getCurrentInstance, inject } from 'vue'
 
 import { provider } from '../../src/provider/provider'
 import { isProvider } from '../../src/provider/is-provider'
@@ -11,6 +11,7 @@ vi.mock('vue', async () => {
 
   return {
     ...actual,
+    getCurrentInstance: vi.fn(),
     inject: vi.fn(),
   }
 })
@@ -20,8 +21,9 @@ describe('provider', () => {
 
   beforeEach(() => {
     container = new DescriptorContainer()
+    vi.mocked(getCurrentInstance).mockReset()
+    vi.mocked(getCurrentInstance).mockReturnValue({ proxy: { $vueModelerDc: container } } as any)
     vi.mocked(inject).mockReset()
-    vi.mocked(inject).mockReturnValue(container)
   })
 
   afterEach(() => {
