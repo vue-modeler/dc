@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { getCurrentInstance } from 'vue'
 
-import { DescriptorContainer } from '../../src/container/descriptor-container'
+import { Container } from '../../src/container/container'
 import {
   getContainer,
   getContainerFromCurrentVueApp,
@@ -20,7 +20,7 @@ vi.mock('vue', async () => {
 
 interface InstanceProxy {
   proxy: {
-    $vueModelerDc: DescriptorContainer
+    $vueModelerDc: Container
   } & Vue
 }
 
@@ -46,7 +46,7 @@ describe('container stack', () => {
   })
 
   it('returns container from current instance proxy when available', () => {
-    const container = new DescriptorContainer()
+    const container = new Container()
     vi.mocked(getCurrentInstance).mockReturnValue({ proxy: { $vueModelerDc: container } } as never as InstanceProxy)
 
     expect(getContainerFromCurrentVueApp()).toBe(container)
@@ -61,7 +61,7 @@ describe('container stack', () => {
   })
 
   it('prefers the active stack container over inject fallback', () => {
-    const stackedContainer = new DescriptorContainer()
+    const stackedContainer = new Container()
 
     pushContainer(stackedContainer)
 
@@ -69,7 +69,7 @@ describe('container stack', () => {
   })
 
   it('does not push the same container twice in a row', () => {
-    const container = new DescriptorContainer()
+    const container = new Container()
 
     pushContainer(container)
     pushContainer(container)

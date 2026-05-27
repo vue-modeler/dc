@@ -3,7 +3,7 @@ import { effectScope, getCurrentInstance, inject } from 'vue'
 
 import { provider } from '../../src/provider/provider'
 import { isProvider } from '../../src/provider/is-provider'
-import { DescriptorContainer } from '../../src/container/descriptor-container'
+import { Container } from '../../src/container/container'
 import type { DepFactory, DependencyContainer } from '../../src/types'
 
 vi.mock('vue', async () => {
@@ -17,12 +17,14 @@ vi.mock('vue', async () => {
 })
 
 describe('provider', () => {
-  let container: DescriptorContainer
+  let container: Container
 
   beforeEach(() => {
-    container = new DescriptorContainer()
+    container = new Container()
     vi.mocked(getCurrentInstance).mockReset()
-    vi.mocked(getCurrentInstance).mockReturnValue({ proxy: { $vueModelerDc: container } } as any)
+    vi.mocked(getCurrentInstance).mockReturnValue(
+      { proxy: { $vueModelerDc: container } } as unknown as ReturnType<typeof getCurrentInstance>,
+    )
     vi.mocked(inject).mockReset()
   })
 

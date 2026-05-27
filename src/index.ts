@@ -1,8 +1,11 @@
 export * from './provider/provider'
 export * from './plugin/vue-modeler-dc'
+export * from './container/container'
 export type {
   DependencyContainerPlugin,
   DepFactory as DependencyFactory,
+  DependencyContainerInternal,
+  DependencyContainer,
   Provider,
   ProviderOptions,
 } from './types'

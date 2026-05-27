@@ -1,17 +1,20 @@
 import type { PluginFunction } from 'vue'
 import type { Vue as VueInstance, VueConstructor } from 'vue/types/vue'
 
-import { DescriptorContainer } from '../container/descriptor-container'
+import { Container } from '../container/container'
+import { isInternalDependencyContainer } from '../container/is-internal-dependency-container'
+import type { DependencyContainer, DependencyContainerInternal } from '../types'
 
-const mixinForVue2: {
-  beforeCreate: (this: VueInstance) => void
-} = {
-  beforeCreate (this: VueInstance): void {
-    this._vueModelerDc = this.$parent?._vueModelerDc ?? new DescriptorContainer()
-  },
+export interface VueModelerDcOptions {
+  /**
+   * Provide a pre-created container instance to be used by this app root (and inherited by children).
+   *
+   * Vue2 only: passed via `new Vue({ vueModelerDc: { dc } })`.
+   */
+  dc?: DependencyContainerInternal
 }
 
-export const vueModelerDc: PluginFunction<void> = (
+export const vueModelerDc: PluginFunction<unknown> = (
   VueCtor: VueConstructor,
 ): void => {
   const vuePrototype = VueCtor.prototype as VueInstance
@@ -20,6 +23,36 @@ export const vueModelerDc: PluginFunction<void> = (
     return
   }
 
+  const mixinForVue2 = {
+    beforeCreate (this: VueInstance): void {
+      if (this._vueModelerDc) {
+        return
+      }
+
+      if (this.$parent?._vueModelerDc) {
+        this._vueModelerDc = this.$parent._vueModelerDc
+        return
+      }
+
+      const instanceDc = (this.$options as unknown as { vueModelerDc?: VueModelerDcOptions })
+        .vueModelerDc
+        ?.dc
+
+      if (instanceDc) {
+        if (!isInternalDependencyContainer(instanceDc)) {
+          throw new Error(
+            'Invalid `vueModelerDc.dc` option: expected a container compatible with internal container API',
+          )
+        }
+
+        this._vueModelerDc = instanceDc
+        return
+      }
+
+      this._vueModelerDc = new Container()
+    },
+  }
+  
   Object.defineProperty(
     vuePrototype,
     '_vueModelerDcInstalled',
@@ -33,9 +66,11 @@ export const vueModelerDc: PluginFunction<void> = (
     vuePrototype,
     '$vueModelerDc',
     {
-      get (this: VueInstance): DescriptorContainer {
+      get (this: VueInstance): DependencyContainer {
         if (!this._vueModelerDc) {
-          this._vueModelerDc = new DescriptorContainer()
+          throw new Error(
+            'vueModelerDc: container is not initialized (expected vueModelerDc beforeCreate mixin to run and set `_vueModelerDc`)',
+          )
         }
 
         return this._vueModelerDc

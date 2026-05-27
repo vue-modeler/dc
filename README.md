@@ -61,10 +61,10 @@ npm install @vue-modeler/dc@^2.0.0
 
 ```js
 import { createApp } from 'vue'
-import { vueModelerDc } from '@vue-modeler/dc'
+import { vueModelerDc, Container } from '@vue-modeler/dc'
 
 const app = createApp(App)
-app.use(vueModelerDc)
+app.use(vueModelerDc, { dc: new Container() })
 app.mount('#app')
 
 ```
@@ -73,15 +73,19 @@ app.mount('#app')
 
 ```js
 import Vue from 'vue'
-import { vueModelerDc } from '@vue-modeler/dc'
+import { vueModelerDc, Container } from '@vue-modeler/dc'
 
+const dc = new Container()
 Vue.use(vueModelerDc)
 
 new Vue({
+  vueModelerDc: { dc },
   // your app configuration
 }).$mount('#app')
 
 ```
+
+`vueModelerDc` (and `dc` inside) is optional. If you don't provide `dc`, the plugin will automatically create a container when the root Vue instance is created.
 
 ## Basic Usage
 

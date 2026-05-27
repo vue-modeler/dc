@@ -1,8 +1,8 @@
 import { EffectScope, effectScope, onScopeDispose } from 'vue'
 
-import { DependencyContainer, DepFactory } from '../types'
+import { DependencyContainer, DependencyDescriptor, DepFactory } from '../types'
 
-export class Descriptor<Target> {
+export class Descriptor<Target> implements DependencyDescriptor<Target> {
   protected _parentScopeCount = 0
   protected _instance: Target
   protected _instanceScope: EffectScope

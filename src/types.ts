@@ -17,9 +17,33 @@ export interface Provider<Target> {
   readonly asKey: symbol
 }
 
+
+export interface DependencyDescriptor<Target> {
+  readonly factory: unknown
+  readonly instance: Target
+  readonly parentScopeCount: number
+  subscribeOnParentScopeDispose: (onParentScopeDispose: (fn: () => void) => void) => void
+  /** Disposes instance when descriptor is replaced after redefine. */
+  disposeForReplace: () => void
+}
+
 export interface DependencyContainer {
   resolve<Target> (key: symbol | Provider<Target>): Target
   get size (): number
+}
+
+/**
+ * Internal container API required by this package runtime (`provider()` uses get/register/delete).
+ *
+ * Public consumers should rely on the minimal `DependencyContainer` contract.
+ */
+export interface DependencyContainerInternal extends DependencyContainer {
+  delete<Target> (key: symbol | Provider<Target>): boolean
+  get<Target> (key: symbol | Provider<Target>): DependencyDescriptor<Target> | undefined
+  register<Target> (
+    key: symbol | Provider<Target>,
+    factory: DepFactory<Target>,
+  ): DependencyDescriptor<Target>
 }
 
 export interface DependencyContainerPlugin {

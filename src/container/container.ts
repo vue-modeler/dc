@@ -1,9 +1,9 @@
 import { popContainer, pushContainer } from './container-stack'
-import { DependencyContainer, DepFactory, Provider } from '../types'
+import { DepFactory, DependencyDescriptor, Provider } from '../types'
 import { Descriptor } from './descriptor'
+import type { DependencyContainerInternal } from '../types'
 
-
-export class DescriptorContainer implements DependencyContainer {
+export class Container implements DependencyContainerInternal {
   protected itemsByKey = new Map<symbol, Descriptor<unknown>>()
 
   protected resolveSymbolKey<Target> (key: symbol | Provider<Target>): symbol {
@@ -14,8 +14,8 @@ export class DescriptorContainer implements DependencyContainer {
     return this.itemsByKey.delete(this.resolveSymbolKey(key))
   }
 
-  get<Target> (key: symbol | Provider<Target>): Descriptor<Target> | undefined {
-    return this.itemsByKey.get(this.resolveSymbolKey(key)) as Descriptor<Target> | undefined
+  get<Target> (key: symbol | Provider<Target>): DependencyDescriptor<Target> | undefined {
+    return this.itemsByKey.get(this.resolveSymbolKey(key)) as DependencyDescriptor<Target> | undefined
   }
 
   resolve<Target> (key: symbol | Provider<Target>): Target {
@@ -40,7 +40,7 @@ export class DescriptorContainer implements DependencyContainer {
   register <Target> (
     key: symbol | Provider<Target>,
     factory: DepFactory<Target>,
-  ): Descriptor<Target> {
+  ): DependencyDescriptor<Target> {
     const symbolKey = this.resolveSymbolKey(key)
     const existing = this.get<Target>(symbolKey)
 

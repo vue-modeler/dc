@@ -1,12 +1,12 @@
 import { describe, expect, it, vi } from 'vitest'
 
-import { DescriptorContainer } from '../../src/container/descriptor-container'
+import { Container } from '../../src/container/container'
 import { provider } from '../../src/provider/provider'
 import type { DependencyContainer } from '../../src/types'
 
-describe('DescriptorContainer', () => {
+describe('Container', () => {
   it('registers descriptors and exposes them by provider or symbol', () => {
-    const container = new DescriptorContainer()
+    const container = new Container()
     const factory = vi.fn(() => ({ id: 'registered' }))
     const useDependency = provider(() => ({ id: 'provider' }))
 
@@ -19,7 +19,7 @@ describe('DescriptorContainer', () => {
   })
 
   it('registers descriptors directly by symbol key', () => {
-    const container = new DescriptorContainer()
+    const container = new Container()
     const key = Symbol('registered')
     const factory = vi.fn(() => ({ id: 'registered' }))
 
@@ -32,7 +32,7 @@ describe('DescriptorContainer', () => {
   })
 
   it('reuses the existing descriptor when factory reference is unchanged', () => {
-    const container = new DescriptorContainer()
+    const container = new Container()
     const factory = vi.fn(() => ({ id: 'shared' }))
     const key = Symbol('shared')
 
@@ -44,7 +44,7 @@ describe('DescriptorContainer', () => {
   })
 
   it('replaces the descriptor when factory reference changes', () => {
-    const container = new DescriptorContainer()
+    const container = new Container()
     const key = Symbol('shared')
     const first = container.register(key, () => ({ id: 'first' }))
     const disposeSpy = vi.spyOn(first, 'disposeForReplace')
@@ -57,7 +57,7 @@ describe('DescriptorContainer', () => {
   })
 
   it('deletes descriptors by provider or symbol key', () => {
-    const container = new DescriptorContainer()
+    const container = new Container()
     const useDependency = provider(() => ({ id: 'value' }))
 
     container.register(useDependency, () => ({ id: 'value' }))
@@ -70,13 +70,13 @@ describe('DescriptorContainer', () => {
   })
 
   it('returns false when deleting an unknown descriptor', () => {
-    const container = new DescriptorContainer()
+    const container = new Container()
 
     expect(container.delete(Symbol('missing'))).toBe(false)
   })
 
   it('resolves nested providers from the same active container', () => {
-    const container = new DescriptorContainer()
+    const container = new Container()
     const useChild = provider<{ container: DependencyContainer }>(({ dc }) => ({ container: dc }))
     const useParent = provider<{
       container: DependencyContainer
@@ -94,7 +94,7 @@ describe('DescriptorContainer', () => {
   })
 
   it('throws when resolving an unknown symbol key', () => {
-    const container = new DescriptorContainer()
+    const container = new Container()
 
     expect(() => container.resolve(Symbol('missing'))).toThrow(
       'Dependency descriptor not found for symbol key',
