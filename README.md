@@ -2,7 +2,14 @@
 
 [![test](https://github.com/vue-modeler/dc/actions/workflows/test.yml/badge.svg)](https://github.com/vue-modeler/dc/actions/workflows/test.yml)
 
-> Compatible with Vue 2 only.  
+## Version Compatibility
+
+| @vue-modeler/dc | Vue |
+|----------------|-----|
+| 3.x.x          | ^3.0.0 |
+| 2.x.x          | ^2.7.0 |
+
+> **Note:** Version 3.x.x introduces breaking changes and requires Vue 3. For Vue 2 support, use version 2.x.x.
 
 ## Overview
 
@@ -17,6 +24,8 @@ Plugin implements a lightweight dependency container for Vue applications based 
 - 🪶 Lightweight
 - 🎯 Simple API
 - 🔄 Supports sharing any data type
+- 🧭 Service locator: resolve from a custom containerK
+- 🔁 `redefine()` to swap the factory before the first resolve (tests, SSR client bootstrap)
 - ✨ Single responsibility principle compliant
 
 ## Why Use This?
@@ -36,22 +45,42 @@ This plugin:
 > 1. The container manages instance scope, not state
 > 2. SSR compatible, but doesn't handle state transfer from server to client
 
-## Instalation 
+## Installation 
+
+### Install Package
+
+```bash
+# For Vue 3
+npm install @vue-modeler/dc@^3.0.0
+
+# For Vue 2
+npm install @vue-modeler/dc@^2.0.0
+```
+
+### Vue 3 Setup
 
 ```js
+import { createApp } from 'vue'
 import { vueModelerDc } from '@vue-modeler/dc'
+
+const app = createApp(App)
+app.use(vueModelerDc)
+app.mount('#app')
+
+```
+
+### Vue 2 Setup
+
+```js
 import Vue from 'vue'
+import { vueModelerDc } from '@vue-modeler/dc'
 
 Vue.use(vueModelerDc)
-...
 
-const app = new Vue()
-...
+new Vue({
+  // your app configuration
+}).$mount('#app')
 
-const useDependency = provider(() => 'test')
-...
-// Get instance by factory function
-const instance = app.$vueModelerDc.get(useDependency.asKey).instance
 ```
 
 ## Basic Usage
@@ -83,6 +112,7 @@ import { useDependency } from '@/providers/myDependency'
 const model = useDependency()
 </script>
 ```
+
 ### Persistent Instances
 
 You can create persistent instances that won't be disposed when all scopes are stopped. This is useful for services that need to maintain their state throughout the application lifecycle:
@@ -112,6 +142,93 @@ const usePersistentService = provider(
 ```
 
 > **Note:** Use persistent instances carefully as they won't be automatically cleaned up by the container.
+
+### Service locator (custom container)
+
+By default, `useDependency()` resolves from the container injected by the `vueModelerDc` plugin. If you already have a container reference, resolve explicitly through the container:
+
+`resolve()` should be used outside `setup()` at runtime.
+
+```typescript
+import { useConfig } from '@/app/core'
+// Runs outside setup(), so dependencies are resolved explicitly from dc
+async function fetchApiData(
+  dc: DependencyContainer,
+  resourceId: string,
+): Promise<ApiData> {
+  
+  const config = dc.resolve(useConfig)
+  const response = await fetch(`${config.apiBaseUrl}/resources/${resourceId}`)
+
+  return response.json()
+}
+
+```
+
+The provider factory receives an object with the active container:
+
+```typescript
+import { provider, type DependencyContainer } from '@vue-modeler/dc'
+
+type ApiData = unknown
+
+const useAuth = provider(() => new AuthService())
+
+const useDataGridModel = provider(({ dc }) => {
+  // dc is the container used for this resolve chain
+  return new DataGridModel({
+    auth: useAuth(),
+    fetchData: (resourceId: string) => fetchApiData(dc, resourceId),
+  })
+})
+
+```
+
+Nested providers inherit the same active container automatically. If `useApi` is resolved through `dc.resolve(useApi)`, then `useAuth()` inside its factory resolves from the same `dc`.
+
+Use this pattern for:
+
+- tests with an isolated container;
+- SSR and other runtime code outside component `setup()`;
+- direct access when you already hold a `DependencyContainer`.
+
+Every provider also exposes a stable `asKey` symbol, but reads should usually go through `resolve(useDependency)`.
+
+### Redefining the factory (`redefine`)
+
+`provider()` returns a function with a `redefine(factory)` method. The replacement factory receives the same `{ dc }` argument plus `prevFactory`, so you can wrap the previous implementation:
+
+```typescript
+const useService = provider(({ dc }) => new RealService(dc))
+
+useService.redefine(({ dc, prevFactory }) => {
+  const previous = prevFactory?.({ dc })
+  return new MockService(previous)
+})
+```
+
+`redefine()` affects future descriptor creation. If the target container already has a live instance for that provider, resolving again from the **same** container throws:
+
+`Provider was redefined after instance creation`
+
+```typescript
+const useService = provider(() => new RealService())
+
+appScope.run(() => useService())
+useService.redefine(() => new MockService())
+
+testDc.resolve(useService) // OK: first resolve in another container
+appScope.run(() => useService()) // throws: old app container still has a live instance
+```
+
+After all scopes that use a non-persistent descriptor stop, the entry is removed from the container. After that, the next resolve in that container uses the redefined factory.
+
+**Typical cases:**
+
+- **Tests**: redefine and resolve from a dedicated test container to keep mocks isolated.
+- **SSR**: resolve on the server container, dispose that scoped instance, then redefine before the first resolve on the client container.
+
+> **Note:** Calling `redefine()` after a **persistent** instance has been created also throws, because the instance is not removed when scopes stop.
 
 ### SSR
 

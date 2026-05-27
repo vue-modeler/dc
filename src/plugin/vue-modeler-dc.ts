@@ -1,38 +1,47 @@
-import { PluginFunction } from 'vue'
-import Vue from 'vue'
+import type { PluginFunction } from 'vue'
+import type { Vue as VueInstance, VueConstructor } from 'vue/types/vue'
 
-import { DescriptorsContainer } from './descriptors-container'
+import { DescriptorContainer } from '../container/descriptor-container'
 
-const mixinForVue2: ThisType<Vue> = {
-  beforeCreate (): void {
-    this._vueModelerDc = this.$parent?._vueModelerDc || new DescriptorsContainer()
+const mixinForVue2: {
+  beforeCreate: (this: VueInstance) => void
+} = {
+  beforeCreate (this: VueInstance): void {
+    this._vueModelerDc = this.$parent?._vueModelerDc ?? new DescriptorContainer()
   },
 }
 
-export const vueModelerDc: PluginFunction<void> = (_Vue): void => {
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-  if ('_vueModelerDcInstalled' in _Vue.prototype && _Vue.prototype._vueModelerDcInstalled) {
+export const vueModelerDc: PluginFunction<void> = (
+  VueCtor: VueConstructor,
+): void => {
+  const vuePrototype = VueCtor.prototype as VueInstance
+
+  if (vuePrototype._vueModelerDcInstalled) {
     return
   }
-  
+
   Object.defineProperty(
-    _Vue.prototype,
-    '_vueModelerDcInstalled', 
+    vuePrototype,
+    '_vueModelerDcInstalled',
     {
       value: true,
       writable: false,
     },
   )
-  
+
   Object.defineProperty(
-    _Vue.prototype,
-    '$vueModelerDc', 
+    vuePrototype,
+    '$vueModelerDc',
     {
-      get () {
-        return (this as Vue)._vueModelerDc;
+      get (this: VueInstance): DescriptorContainer {
+        if (!this._vueModelerDc) {
+          this._vueModelerDc = new DescriptorContainer()
+        }
+
+        return this._vueModelerDc
       },
     },
   )
 
-  _Vue.mixin(mixinForVue2)
+  VueCtor.mixin(mixinForVue2)
 }

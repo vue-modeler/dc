@@ -7,3 +7,5 @@ coverage/
 .http/
 .history/
 .npm
+
+vite.config.ts.timestamp-*

@@ -1,17 +1,24 @@
 import { EffectScope, effectScope, onScopeDispose } from 'vue'
 
-import { DependencyFactory } from '../types'
+import { DependencyContainer, DepFactory } from '../types'
 
 export class Descriptor<Target> {
   protected _parentScopeCount = 0
   protected _instance: Target
   protected _instanceScope: EffectScope
-
+  readonly factory: unknown
+  
   constructor (
-    factory: DependencyFactory<Target>,
+    readonly dc: DependencyContainer,
+    factory: DepFactory<Target>,
   ) {
+    this.factory = factory
     this._instanceScope = effectScope(true)
-    const instance = this._instanceScope.run<Target>(() => factory())
+    const instance = this._instanceScope.run<Target>(() => factory({ dc }))
+
+    if (instance instanceof Promise) {
+      throw new Error('Dependency factory must be synchronous and must not return a Promise')
+    }
 
     if (!instance) {
       throw new Error('Factory has not created model instance')
@@ -54,8 +61,17 @@ export class Descriptor<Target> {
       return
     }
 
+    this.disposeInstance()
+  }
+
+  /** Disposes instance when descriptor is replaced after redefine. */
+  disposeForReplace (): void {
+    this._parentScopeCount = 0
+    this.disposeInstance()
+  }
+
+  protected disposeInstance (): void {
     this._instanceScope.stop()
-    
     this.callInstanceDestructor(this._instance)
   }
 }
