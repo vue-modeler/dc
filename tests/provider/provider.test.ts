@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { effectScope, getCurrentInstance, inject } from 'vue'
+import { effectScope, getCurrentInstance, getCurrentScope, inject, onScopeDispose } from 'vue'
 
 import { provider } from '../../src/provider/provider'
 import { isProvider } from '../../src/provider/is-provider'
@@ -12,7 +12,9 @@ vi.mock('vue', async () => {
   return {
     ...actual,
     getCurrentInstance: vi.fn(),
+    getCurrentScope: vi.fn(actual.getCurrentScope),
     inject: vi.fn(),
+    onScopeDispose: vi.fn(actual.onScopeDispose),
   }
 })
 
@@ -25,7 +27,12 @@ describe('provider', () => {
     vi.mocked(getCurrentInstance).mockReturnValue(
       { proxy: { $vueModelerDc: container } } as unknown as ReturnType<typeof getCurrentInstance>,
     )
+    vi.mocked(getCurrentScope).mockImplementation((async () => {
+      const actual = await vi.importActual<typeof import('vue')>('vue')
+      return actual.getCurrentScope()
+    }) as unknown as typeof getCurrentScope)
     vi.mocked(inject).mockReset()
+    vi.mocked(onScopeDispose).mockClear()
   })
 
   afterEach(() => {
@@ -71,6 +78,47 @@ describe('provider', () => {
     expect(container.size).toBe(0)
   })
 
+  it('returns the instance immediately when called without an active Vue scope', () => {
+    const instance = { id: 'no-scope' }
+    const useDependency = provider(() => instance)
+    const deleteSpy = vi.spyOn(container, 'delete')
+
+    vi.mocked(getCurrentScope).mockReturnValue(undefined)
+
+    expect(useDependency()).toBe(instance)
+    expect(onScopeDispose).not.toHaveBeenCalled()
+    expect(deleteSpy).not.toHaveBeenCalled()
+    expect(container.size).toBe(1)
+  })
+
+  it('returns the instance immediately in SSR context (window is undefined) even inside effect scope', async () => {
+    const instance = { id: 'ssr' }
+    const globalWithWindow = globalThis as unknown as { window?: unknown }
+    const originalWindow = globalWithWindow.window
+    globalWithWindow.window = undefined
+
+    try {
+      // `provider.ts` captures `isServerSide` at module init time, so we need a fresh import.
+      vi.resetModules()
+      const { provider: providerSsr } = await import('../../src/provider/provider')
+
+      const useDependency = providerSsr(() => instance)
+      const deleteSpy = vi.spyOn(container, 'delete')
+
+      const scope = effectScope(true)
+      const result = scope.run(() => useDependency())
+
+      expect(result).toBe(instance)
+
+      scope.stop()
+      expect(onScopeDispose).not.toHaveBeenCalled()
+      expect(deleteSpy).not.toHaveBeenCalled()
+      expect(container.size).toBe(1)
+    } finally {
+      globalWithWindow.window = originalWindow
+    }
+  })
+
   it('keeps persistent instances after scope disposal', () => {
     const instance = { id: 'persistent' }
     const useDependency = provider(() => instance, { persistentInstance: true })
@@ -102,6 +150,32 @@ describe('provider', () => {
     expect(warnSpy).not.toHaveBeenCalled()
 
     warnSpy.mockRestore()
+  })
+
+  it('throws a readable error on self-referential provider factory (cycle)', () => {
+    const holder: { fn: () => unknown } = { fn: () => undefined as unknown }
+    const useSelf = provider(() => holder.fn())
+    holder.fn = () => useSelf()
+
+    expect(() => effectScope(true).run(() => useSelf())).toThrow(
+      'Cyclic dependency detected while creating provider instance',
+    )
+  })
+
+  it('throws a readable error on mutually-referential providers (A <-> B cycle)', () => {
+    const holder: { useA: () => unknown; useB: () => unknown } = {
+      useA: () => undefined as unknown,
+      useB: () => undefined as unknown,
+    }
+
+    const useA = provider(() => holder.useB())
+    const useB = provider(() => holder.useA())
+    holder.useA = () => useA()
+    holder.useB = () => useB()
+
+    expect(() => effectScope(true).run(() => useA())).toThrow(
+      'Cyclic dependency detected while creating provider instance',
+    )
   })
 
   it('passes the previous factory to redefine before first resolve', () => {

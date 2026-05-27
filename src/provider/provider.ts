@@ -14,7 +14,8 @@ export function provider<Target> (
   const providerKey = options.key ?? Symbol('provider')
   let currentFactory = initialFactory
   let redifined = false
-
+  const isServerSide = typeof window === 'undefined'
+  
   const provider = ((): Target => {
     const dc = getContainer()
     let dependencyDescriptor = dc.get<Target>(provider)
@@ -26,7 +27,22 @@ export function provider<Target> (
       throw new Error('Provider was redefine after creation instance')
     }
 
-    if (options.persistentInstance || getCurrentScope() === undefined) {
+    // If we are in a server-side context, onScopeDispose is not available,
+    // components are not disposed.
+    // All descriptors are persistent and will be  destroyed along with the container.
+    if (isServerSide) {
+      return dependencyDescriptor.instance
+    }
+
+    // If we in client-side context and the current scope is undefined
+    // that means provider is called outside of a component setup in runtime.
+    if (getCurrentScope() === undefined) {
+      return dependencyDescriptor.instance
+    }
+
+    // If the persistent instance is requested,
+    // we return the instance immediately
+    if (options.persistentInstance) {
       return dependencyDescriptor.instance
     }
 

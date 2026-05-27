@@ -5,6 +5,7 @@ import type { DependencyContainerInternal } from '../types'
 
 export class Container implements DependencyContainerInternal {
   protected itemsByKey = new Map<symbol, Descriptor<unknown>>()
+  protected constructingKeys = new Set<symbol>()
 
   protected resolveSymbolKey<Target> (key: symbol | Provider<Target>): symbol {
     return typeof key === 'symbol' ? key : key.asKey
@@ -48,12 +49,20 @@ export class Container implements DependencyContainerInternal {
       return existing
     }
 
+    if (this.constructingKeys.has(symbolKey)) {
+      throw new Error('Cyclic dependency detected while creating provider instance')
+    }
+
     existing?.disposeForReplace()
 
-    const descriptor = new Descriptor(this, factory)
-    this.itemsByKey.set(symbolKey, descriptor)
-
-    return descriptor
+    this.constructingKeys.add(symbolKey)
+    try {
+      const descriptor = new Descriptor(this, factory)
+      this.itemsByKey.set(symbolKey, descriptor)
+      return descriptor
+    } finally {
+      this.constructingKeys.delete(symbolKey)
+    }
   }
 
   get size (): number {
