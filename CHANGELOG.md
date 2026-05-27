@@ -1,3 +1,9 @@
+## [2.2.0-v2-beta.1](https://github.com/vue-modeler/dc/compare/v2.1.0...v2.2.0-v2-beta.1) (2026-05-27)
+
+### Features
+
+* **v2:** port beta (v3) container/provider internals ([df38b7e](https://github.com/vue-modeler/dc/commit/df38b7e63562f0572f235bac0a6dc6eb91b774e1))
+
 # [2.1.0](https://github.com/vue-modeler/dc/compare/v2.0.3...v2.1.0) (2025-04-03)
 
 
