@@ -1,3 +1,5 @@
+import type { Vue as VueInstance } from 'vue/types/vue'
+
 import { popContainer, pushContainer } from './container-stack'
 import { DepFactory, DependencyDescriptor, Provider } from '../types'
 import { Descriptor } from './descriptor'
@@ -6,6 +8,15 @@ import type { DependencyContainerInternal } from '../types'
 export class Container implements DependencyContainerInternal {
   protected itemsByKey = new Map<symbol, Descriptor<unknown>>()
   protected constructingKeys = new Set<symbol>()
+  protected _vueApp: VueInstance | undefined
+
+  get vueApp (): VueInstance | undefined {
+    return this._vueApp
+  }
+
+  bindVueApp (app: VueInstance): void {
+    this._vueApp = app
+  }
 
   protected resolveSymbolKey<Target> (key: symbol | Provider<Target>): symbol {
     return typeof key === 'symbol' ? key : key.asKey

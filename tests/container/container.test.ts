@@ -3,8 +3,19 @@ import { describe, expect, it, vi } from 'vitest'
 import { Container } from '../../src/container/container'
 import { provider } from '../../src/provider/provider'
 import type { DependencyContainer } from '../../src/types'
+import type { Vue as VueInstance } from 'vue/types/vue'
 
 describe('Container', () => {
+  it('binds and exposes vueApp instance', () => {
+    const container = new Container()
+
+    expect(container.vueApp).toBeUndefined()
+
+    const app = {} as unknown as VueInstance
+    container.bindVueApp(app)
+    expect(container.vueApp).toBe(app)
+  })
+
   it('registers descriptors and exposes them by provider or symbol', () => {
     const container = new Container()
     const factory = vi.fn(() => ({ id: 'registered' }))

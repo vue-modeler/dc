@@ -1,3 +1,5 @@
+import type { Vue as VueInstance } from 'vue/types/vue'
+
 /** Dependency instance type; factories must not resolve to a Promise. */
 type SyncTarget<Target> = Target extends Promise<unknown> ? never : Target
 
@@ -30,6 +32,11 @@ export interface DependencyDescriptor<Target> {
 export interface DependencyContainer {
   resolve<Target> (key: symbol | Provider<Target>): Target
   get size (): number
+  /**
+   * Root Vue instance this container is bound to, or `undefined` if the plugin
+   * has not bound it yet (e.g. container created before the Vue app).
+   */
+  get vueApp (): VueInstance | undefined
 }
 
 /**
@@ -44,6 +51,11 @@ export interface DependencyContainerInternal extends DependencyContainer {
     key: symbol | Provider<Target>,
     factory: DepFactory<Target>,
   ): DependencyDescriptor<Target>
+  /**
+   * Internal-only binder used by the plugin to attach the root Vue instance
+   * to this container. Not exposed via the public `DependencyContainer` API.
+   */
+  bindVueApp (app: VueInstance): void
 }
 
 export interface DependencyContainerPlugin {

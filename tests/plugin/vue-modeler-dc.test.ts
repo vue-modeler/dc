@@ -14,6 +14,8 @@ vi.mock('../../src/container/container', () => {
     return Object.create(Container.prototype as object) as DependencyContainerInternal
   })
 
+  ;(Container.prototype as { bindVueApp: (app: unknown) => void }).bindVueApp = vi.fn()
+
   return { Container }
 })
 

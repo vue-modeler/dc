@@ -31,25 +31,21 @@ export const vueModelerDc: PluginFunction<unknown> = (
 
       if (this.$parent?._vueModelerDc) {
         this._vueModelerDc = this.$parent._vueModelerDc
-        return
+        return  
       }
 
       const instanceDc = (this.$options as unknown as { vueModelerDc?: VueModelerDcOptions })
         .vueModelerDc
         ?.dc
 
-      if (instanceDc) {
-        if (!isInternalDependencyContainer(instanceDc)) {
-          throw new Error(
-            'Invalid `vueModelerDc.dc` option: expected a container compatible with internal container API',
-          )
-        }
-
-        this._vueModelerDc = instanceDc
-        return
+      if (instanceDc && !isInternalDependencyContainer(instanceDc)) {
+        throw new Error(
+          'Invalid `vueModelerDc.dc` option: expected a container compatible with internal container API',
+        )
       }
 
-      this._vueModelerDc = new Container()
+      this._vueModelerDc = instanceDc ?? new Container()
+      this._vueModelerDc.bindVueApp(this)
     },
   }
   

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { SsrStateService } from '../../src/ssr-state-service/ssr-state-service'
+import { SsrStateService } from '../../../src/hooks/use-ssr-state/ssr-state-service'
 
 describe('SsrStateService', () => {
   let service: SsrStateService

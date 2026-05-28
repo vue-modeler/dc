@@ -15,7 +15,9 @@ describe('isInternalDependencyContainer', () => {
       get: vi.fn(),
       register: vi.fn(),
       delete: vi.fn(),
+      bindVueApp: vi.fn(),
       size: 0,
+      vueApp: undefined,
     } as unknown as DependencyContainerInternal
 
     expect(isInternalDependencyContainer(value)).toBe(true)
@@ -25,6 +27,19 @@ describe('isInternalDependencyContainer', () => {
     expect(isInternalDependencyContainer(null)).toBe(false)
     expect(isInternalDependencyContainer({})).toBe(false)
     expect(isInternalDependencyContainer({ get: () => undefined })).toBe(false)
+  })
+
+  it('should return false when bindVueApp is missing', () => {
+    const value = {
+      resolve: vi.fn(),
+      get: vi.fn(),
+      register: vi.fn(),
+      delete: vi.fn(),
+      size: 0,
+      vueApp: undefined,
+    }
+
+    expect(isInternalDependencyContainer(value)).toBe(false)
   })
 })
 

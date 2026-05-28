@@ -12,6 +12,8 @@ export function isInternalDependencyContainer (value: unknown): value is Depende
     && typeof v.get === 'function'
     && typeof v.register === 'function'
     && typeof v.delete === 'function'
+    && typeof v.bindVueApp === 'function'
     && 'size' in v
+    && 'vueApp' in v
 }
 

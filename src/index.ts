@@ -9,6 +9,7 @@ export type {
   Provider,
   ProviderOptions,
 } from './types'
-export * from './ssr-state-service/ssr-state-service'
-export * from './ssr-state-service/types'
-export * from './ssr-state-service/use-ssr-state'
+export * from './hooks/use-ssr-state/ssr-state-service'
+export * from './hooks/use-ssr-state/types'
+export * from './hooks/use-ssr-state/use-ssr-state'
+export * from './hooks/use-vue-app/use-vue-app'
