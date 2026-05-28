@@ -1,3 +1,9 @@
+## [2.2.0-v2-beta.5](https://github.com/vue-modeler/dc/compare/v2.2.0-v2-beta.4...v2.2.0-v2-beta.5) (2026-05-28)
+
+### Features
+
+* **container, types:** useVueApp hook hasa been added ([c8da175](https://github.com/vue-modeler/dc/commit/c8da175686894a5a0a5d9b308570ab9aa114eab8))
+
 ## [2.2.0-v2-beta.4](https://github.com/vue-modeler/dc/compare/v2.2.0-v2-beta.3...v2.2.0-v2-beta.4) (2026-05-27)
 
 ### Features
