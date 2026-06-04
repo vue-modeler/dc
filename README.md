@@ -1,10 +1,10 @@
 # Dependency container for VUE
 
-[![test](https://github.com/vue-modeler/dc/actions/workflows/test.yml/badge.svg)](https://github.com/vue-modeler/dc/actions/workflows/test.yml)
+[![test](https://github.com/vue-modeler/di/actions/workflows/test.yml/badge.svg)](https://github.com/vue-modeler/di/actions/workflows/test.yml)
 
 ## Version Compatibility
 
-| @vue-modeler/dc | Vue |
+| @vue-modeler/di | Vue |
 |----------------|-----|
 | 3.x.x          | ^3.0.0 |
 | 2.x.x          | ^2.7.0 |
@@ -49,17 +49,17 @@ This plugin:
 
 ```bash
 # For Vue 3
-npm install @vue-modeler/dc@^3.0.0
+npm install @vue-modeler/di@^3.0.0
 
 # For Vue 2
-npm install @vue-modeler/dc@^2.0.0
+npm install @vue-modeler/di@^2.0.0
 ```
 
 ### Vue 3 Setup
 
 ```js
 import { createApp } from 'vue'
-import { vueModelerDc } from '@vue-modeler/dc'
+import { vueModelerDc } from '@vue-modeler/di'
 
 const app = createApp(App)
 app.use(vueModelerDc)
@@ -71,7 +71,7 @@ app.mount('#app')
 
 ```js
 import Vue from 'vue'
-import { vueModelerDc } from '@vue-modeler/dc'
+import { vueModelerDc } from '@vue-modeler/di'
 
 Vue.use(vueModelerDc)
 
@@ -88,7 +88,7 @@ new Vue({
 Create a provider using `provider`:
 
 ```typescript
-import { provider } from '@vue-modeler/dc'
+import { provider } from '@vue-modeler/di'
 
 const useDependency = provider(() => {
   // Your factory function
@@ -218,7 +218,7 @@ Don't use `useSsrState` provider directly. This may cause an error, because in t
 
 ```typescript
 // somewhere in your server entry file
-import { useSsrState } from '@vue-modeler/dc'
+import { useSsrState } from '@vue-modeler/di'
 
 function ssrHydration(ctx: Context): void {
   // get ssr state service instance
@@ -241,7 +241,7 @@ You can create your own SsrStateService and use it absolutely the same way.
 
 ```typescript
 // ... my-ssr-state-service.ts
-import { SsrStateService } from '@vue-modeler/dc'
+import { SsrStateService } from '@vue-modeler/di'
 
 class MySsrStateService extends SsrStateService {
   constructor() {
@@ -254,7 +254,7 @@ class MySsrStateService extends SsrStateService {
 const useMySsrStateService = provider(() => new MySsrStateService())
 
 // somewhere in your server entry file
-import { useMySsrStateService } from './src/dc/ssr-state-service'
+import { useMySsrStateService } from './src/di/ssr-state-service'
 
 function ssrHydration(ctx: Context): void {
   // get ssr state service instance
@@ -317,7 +317,7 @@ export class MyModel {
 }
 
 // providers/myProvider.ts
-import { provider } from '@vue-modeler/dc'
+import { provider } from '@vue-modeler/di'
 import { MyModel } from '@/application/models/MyModel'
 import { api } from '@/infrastructure/api'
 

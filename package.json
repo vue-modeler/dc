@@ -1,7 +1,7 @@
 {
   "type": "module",
-  "name": "@vue-modeler/dc",
-  "version": "3.0.1",
+  "name": "@vue-modeler/di",
+  "version": "3.0.2",
   "description": "Dependency container based on VUE effected scope and shared composable.",
   "author": "abratko",
   "license": "MIT",
@@ -48,9 +48,9 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/vue-modeler/dc.git"
+    "url": "https://github.com/vue-modeler/di.git"
   },
   "bugs": {
-    "url": "https://github.com/vue-modeler/dc/issues"
+    "url": "https://github.com/vue-modeler/di/issues"
   }
 }
