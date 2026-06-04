@@ -1,8 +1,15 @@
 # Dependency container for VUE
 
-[![test](https://github.com/vue-modeler/dc/actions/workflows/test.yml/badge.svg)](https://github.com/vue-modeler/dc/actions/workflows/test.yml)
+[![test](https://github.com/vue-modeler/di/actions/workflows/test.yml/badge.svg)](https://github.com/vue-modeler/di/actions/workflows/test.yml)
 
-> Compatible with Vue 2 only.  
+## Version Compatibility
+
+| @vue-modeler/di | Vue |
+|----------------|-----|
+| 3.x.x          | ^3.0.0 |
+| 2.x.x          | ^2.7.0 |
+
+> **Note:** Version 3.x.x introduces breaking changes and requires Vue 3. For Vue 2 support, use version 2.x.x.
 
 ## Overview
 
@@ -36,22 +43,42 @@ This plugin:
 > 1. The container manages instance scope, not state
 > 2. SSR compatible, but doesn't handle state transfer from server to client
 
-## Instalation 
+## Installation 
+
+### Install Package
+
+```bash
+# For Vue 3
+npm install @vue-modeler/di@^3.0.0
+
+# For Vue 2
+npm install @vue-modeler/di@^2.0.0
+```
+
+### Vue 3 Setup
 
 ```js
-import { vueModelerDc } from '@vue-modeler/dc'
+import { createApp } from 'vue'
+import { vueModelerDc } from '@vue-modeler/di'
+
+const app = createApp(App)
+app.use(vueModelerDc)
+app.mount('#app')
+
+```
+
+### Vue 2 Setup
+
+```js
 import Vue from 'vue'
+import { vueModelerDc } from '@vue-modeler/di'
 
 Vue.use(vueModelerDc)
-...
 
-const app = new Vue()
-...
+new Vue({
+  // your app configuration
+}).$mount('#app')
 
-const useDependency = provider(() => 'test')
-...
-// Get instance by factory function
-const instance = app.$vueModelerDc.get(useDependency.asKey).instance
 ```
 
 ## Basic Usage
@@ -61,7 +88,7 @@ const instance = app.$vueModelerDc.get(useDependency.asKey).instance
 Create a provider using `provider`:
 
 ```typescript
-import { provider } from '@vue-modeler/dc'
+import { provider } from '@vue-modeler/di'
 
 const useDependency = provider(() => {
   // Your factory function
@@ -83,6 +110,7 @@ import { useDependency } from '@/providers/myDependency'
 const model = useDependency()
 </script>
 ```
+
 ### Persistent Instances
 
 You can create persistent instances that won't be disposed when all scopes are stopped. This is useful for services that need to maintain their state throughout the application lifecycle:
@@ -190,7 +218,7 @@ Don't use `useSsrState` provider directly. This may cause an error, because in t
 
 ```typescript
 // somewhere in your server entry file
-import { useSsrState } from '@vue-modeler/dc'
+import { useSsrState } from '@vue-modeler/di'
 
 function ssrHydration(ctx: Context): void {
   // get ssr state service instance
@@ -213,7 +241,7 @@ You can create your own SsrStateService and use it absolutely the same way.
 
 ```typescript
 // ... my-ssr-state-service.ts
-import { SsrStateService } from '@vue-modeler/dc'
+import { SsrStateService } from '@vue-modeler/di'
 
 class MySsrStateService extends SsrStateService {
   constructor() {
@@ -226,7 +254,7 @@ class MySsrStateService extends SsrStateService {
 const useMySsrStateService = provider(() => new MySsrStateService())
 
 // somewhere in your server entry file
-import { useMySsrStateService } from './src/dc/ssr-state-service'
+import { useMySsrStateService } from './src/di/ssr-state-service'
 
 function ssrHydration(ctx: Context): void {
   // get ssr state service instance
@@ -289,7 +317,7 @@ export class MyModel {
 }
 
 // providers/myProvider.ts
-import { provider } from '@vue-modeler/dc'
+import { provider } from '@vue-modeler/di'
 import { MyModel } from '@/application/models/MyModel'
 import { api } from '@/infrastructure/api'
 
