@@ -1,3 +1,5 @@
+## [2.2.0-v2-beta.6](https://github.com/vue-modeler/di/compare/v2.2.0-v2-beta.5...v2.2.0-v2-beta.6) (2026-06-03)
+
 ## [2.2.0-v2-beta.5](https://github.com/vue-modeler/dc/compare/v2.2.0-v2-beta.4...v2.2.0-v2-beta.5) (2026-05-28)
 
 ### Features
