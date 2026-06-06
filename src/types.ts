@@ -16,6 +16,8 @@ export interface Provider<Target> {
   (): Target
   __isProvider__: true
   redefine: (factory: DepFactory<Target>) => void
+  /** Registers an additional symbol key for `container.resolve(key)`. */
+  assignKey: (...keys: symbol[]) => void
   readonly asKey: symbol
 }
 
@@ -30,7 +32,7 @@ export interface DependencyDescriptor<Target> {
 }
 
 export interface DependencyContainer {
-  resolve<Target> (key: symbol | Provider<Target>): Target
+  resolve<Target> (keyOrProvider: symbol | Provider<Target>): Target
   get size (): number
   /**
    * Root Vue instance this container is bound to, or `undefined` if the plugin

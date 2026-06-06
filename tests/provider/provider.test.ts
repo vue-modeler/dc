@@ -45,6 +45,7 @@ describe('provider', () => {
     expect(useDependency).toBeInstanceOf(Function)
     expect(isProvider(useDependency)).toBe(true)
     expect(typeof useDependency.redefine).toBe('function')
+    expect(typeof useDependency.assignKey).toBe('function')
     expect(typeof useDependency.asKey).toBe('symbol')
   })
 
@@ -259,5 +260,63 @@ describe('provider', () => {
     expect(() => effectScope(true).run(() => useDependency())).toThrow(
       'Provider was redefine after creation instance',
     )
+  })
+
+  describe('assignKey', () => {
+    it('resolves the same instance by an assigned alias key', () => {
+      const instance = { id: 'aliased' }
+      const aliasKey = Symbol('alias')
+      const useDependency = provider(() => instance)
+
+      useDependency.assignKey(aliasKey)
+
+      expect(container.resolve(aliasKey)).toBe(instance)
+      expect(container.resolve(useDependency)).toBe(instance)
+      expect(container.get(aliasKey)?.instance).toBe(instance)
+    })
+
+    it('creates the instance lazily when resolving by an assigned alias key', () => {
+      const factory = vi.fn(() => ({ id: 'lazy' }))
+      const aliasKey = Symbol('lazy-alias')
+      const useDependency = provider(factory)
+
+      useDependency.assignKey(aliasKey)
+
+      const result = container.resolve(aliasKey)
+
+      expect(result).toEqual({ id: 'lazy' })
+      expect(factory).toHaveBeenCalledTimes(1)
+      expect(container.resolve(useDependency)).toBe(result)
+    })
+
+    it('throws when assigning an alias key that belongs to another provider', () => {
+      const aliasKey = Symbol('shared-alias')
+      const useFirst = provider(() => 'first')
+      const useSecond = provider(() => 'second')
+
+      useFirst.assignKey(aliasKey)
+
+      expect(() => { useSecond.assignKey(aliasKey); }).toThrow(
+        'Provider alias key is already assigned to another provider',
+      )
+    })
+
+    it('throws when any key in a multi-key assignKey call belongs to another provider', () => {
+      const takenKey = Symbol('taken')
+      const freeKey = Symbol('free')
+      const useFirst = provider(() => 'first')
+      const useSecond = provider(() => 'second')
+
+      useFirst.assignKey(takenKey)
+
+      expect(() => {
+        useSecond.assignKey(takenKey, freeKey)
+      }).toThrow(
+        'Provider alias key is already assigned to another provider',
+      )
+      expect(() => container.resolve(freeKey)).toThrow(
+        'Dependency descriptor not found for symbol key',
+      )
+    })
   })
 })

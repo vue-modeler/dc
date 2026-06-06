@@ -1,6 +1,7 @@
 import type { Vue as VueInstance } from 'vue/types/vue'
 
 import { popContainer, pushContainer } from './container-stack'
+import { getProviderByAliasKey } from '../provider/provider-aliases'
 import { DepFactory, DependencyDescriptor, Provider } from '../types'
 import { Descriptor } from './descriptor'
 import type { DependencyContainerInternal } from '../types'
@@ -19,7 +20,13 @@ export class Container implements DependencyContainerInternal {
   }
 
   protected resolveSymbolKey<Target> (key: symbol | Provider<Target>): symbol {
-    return typeof key === 'symbol' ? key : key.asKey
+    if (typeof key !== 'symbol') {
+      return key.asKey
+    }
+
+    const aliasedProvider = getProviderByAliasKey(key)
+
+    return aliasedProvider?.asKey ?? key
   }
 
   delete<Target> (key: symbol | Provider<Target>): boolean {
@@ -30,20 +37,24 @@ export class Container implements DependencyContainerInternal {
     return this.itemsByKey.get(this.resolveSymbolKey(key)) as DependencyDescriptor<Target> | undefined
   }
 
-  resolve<Target> (key: symbol | Provider<Target>): Target {
-    const existing = this.get<Target>(key)
+  resolve<Target> (keyOrProvider: symbol | Provider<Target>): Target {
+    const depDescriptor = this.get<Target>(keyOrProvider)
 
-    if (existing) {
-      return existing.instance
+    if (depDescriptor) {
+      return depDescriptor.instance
     }
 
-    if (typeof key === 'symbol') {
+    const provider = typeof keyOrProvider === 'symbol' 
+      ? getProviderByAliasKey<Target>(keyOrProvider)
+      : keyOrProvider
+        
+    if (!provider) {
       throw new Error('Dependency descriptor not found for symbol key')
     }
 
     try {
       pushContainer(this)
-      return key()
+      return provider()
     } finally {
       popContainer()
     }

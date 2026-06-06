@@ -6,6 +6,7 @@ import {
   Provider,
   ProviderOptions,
 } from '../types'
+import { registerProviderAlias } from './provider-aliases'
 
 const IS_SERVER_SIDE = typeof window === 'undefined'
 
@@ -82,6 +83,11 @@ export function provider<Target> (
         const prevFactory = currentFactory
         currentFactory = ({ dc }) => factory({ dc, prevFactory })
         redifined = true
+      },
+    },
+    assignKey: {
+      value: (...args: symbol[]): void => {
+        registerProviderAlias(args, provider)
       },
     },
   })

@@ -111,4 +111,18 @@ describe('Container', () => {
       'Dependency descriptor not found for symbol key',
     )
   })
+
+  it('resolves descriptors by an alias key assigned on the provider', () => {
+    const container = new Container()
+    const aliasKey = Symbol('alias')
+    const useDependency = provider(() => ({ id: 'alias-target' }))
+
+    useDependency.assignKey(aliasKey)
+
+    const viaProvider = container.resolve(useDependency)
+    const viaAlias = container.resolve<{ id: string }>(aliasKey)
+
+    expect(viaAlias).toBe(viaProvider)
+    expect(container.get(aliasKey)).toBe(container.get(useDependency))
+  })
 })
