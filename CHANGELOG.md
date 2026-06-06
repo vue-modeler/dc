@@ -1,3 +1,9 @@
+## [2.2.0-v2-beta.7](https://github.com/vue-modeler/di/compare/v2.2.0-v2-beta.6...v2.2.0-v2-beta.7) (2026-06-06)
+
+### Features
+
+* **provider, container:** add alias key functionality for providers ([ed36adc](https://github.com/vue-modeler/di/commit/ed36adc37a2d9cff37c59db9f5a65de8220acac1))
+
 ## [2.2.0-v2-beta.6](https://github.com/vue-modeler/di/compare/v2.2.0-v2-beta.5...v2.2.0-v2-beta.6) (2026-06-03)
 
 ## [2.2.0-v2-beta.5](https://github.com/vue-modeler/dc/compare/v2.2.0-v2-beta.4...v2.2.0-v2-beta.5) (2026-05-28)
