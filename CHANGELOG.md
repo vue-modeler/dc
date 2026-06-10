@@ -1,3 +1,9 @@
+## [2.2.0-v2-beta.9](https://github.com/vue-modeler/di/compare/v2.2.0-v2-beta.8...v2.2.0-v2-beta.9) (2026-06-10)
+
+### Bug Fixes
+
+* **ci:** pass NPM_TOKEN when configuring npm registry for publish ([39bf829](https://github.com/vue-modeler/di/commit/39bf829603ee2fdab68dfcb0c392cc0580ab86dd))
+
 ## [2.2.0-v2-beta.8](https://github.com/vue-modeler/di/compare/v2.2.0-v2-beta.7...v2.2.0-v2-beta.8) (2026-06-10)
 
 ## [2.2.0-v2-beta.7](https://github.com/vue-modeler/di/compare/v2.2.0-v2-beta.6...v2.2.0-v2-beta.7) (2026-06-06)
