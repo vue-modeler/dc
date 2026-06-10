@@ -1,3 +1,9 @@
+## [2.2.0-v2-beta.11](https://github.com/vue-modeler/di/compare/v2.2.0-v2-beta.10...v2.2.0-v2-beta.11) (2026-06-10)
+
+### Bug Fixes
+
+* **hooks:** enhance useVueApp to validate root Vue instance ([d93eefb](https://github.com/vue-modeler/di/commit/d93eefbc638eef5ff8fc63f82394d3fd224363e0))
+
 ## [2.2.0-v2-beta.10](https://github.com/vue-modeler/di/compare/v2.2.0-v2-beta.9...v2.2.0-v2-beta.10) (2026-06-10)
 
 ## [2.2.0-v2-beta.9](https://github.com/vue-modeler/di/compare/v2.2.0-v2-beta.8...v2.2.0-v2-beta.9) (2026-06-10)
