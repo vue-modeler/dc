@@ -13,7 +13,7 @@ export type DepFactory<Target> = ({
 }) => SyncTarget<Target>
 
 export interface Provider<Target> {
-  (): Target
+  (): Target extends null | undefined ? never : Target
   __isProvider__: true
   redefine: (factory: DepFactory<Target>) => void
   /** Registers an additional symbol key for `container.resolve(key)`. */
