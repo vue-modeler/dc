@@ -31,7 +31,13 @@ export function getContainerFromCurrentVueApp (): DependencyContainerInternal {
     | (Record<string, unknown> & { $vueModelerDc?: DependencyContainerInternal })
     | undefined
 
-  const fromInstance = currentInstance?.$vueModelerDc
+  if (!currentInstance) {
+    throw new Error(
+      'Provider hook called outside Vue component context. Use dc.resolve(provider) instead.',
+    )
+  }
+
+  const fromInstance = currentInstance.$vueModelerDc
   if (fromInstance) {
     return fromInstance
   }

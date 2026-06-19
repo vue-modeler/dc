@@ -46,7 +46,7 @@ export const vueModelerDc: PluginFunction<unknown> = (
 
       this._vueModelerDc = instanceDc ?? new Container()
       this._vueModelerDc.bindVueApp(this)
-    },
+    },  
   }
   
   Object.defineProperty(

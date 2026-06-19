@@ -52,8 +52,16 @@ describe('container stack', () => {
     expect(getContainerFromCurrentVueApp()).toBe(container)
   })
 
-  it('throws when plugin container is missing', () => {
+  it('throws when called outside Vue component context', () => {
     vi.mocked(getCurrentInstance).mockReturnValue(null)
+
+    expect(() => getContainerFromCurrentVueApp()).toThrow(
+      'Provider hook called outside Vue component context. Use dc.resolve(provider) instead.',
+    )
+  })
+
+  it('throws when plugin container is missing on current instance', () => {
+    vi.mocked(getCurrentInstance).mockReturnValue({ proxy: {} } as never as InstanceProxy)
 
     expect(() => getContainerFromCurrentVueApp()).toThrow(
       'Vue Modeler DC plugin not installed',
@@ -75,7 +83,9 @@ describe('container stack', () => {
     pushContainer(container)
     popContainer()
 
-    expect(() => getContainer()).toThrow('Vue Modeler DC plugin not installed')
+    expect(() => getContainer()).toThrow(
+      'Provider hook called outside Vue component context. Use dc.resolve(provider) instead.',
+    )
   })
 
   it('throws when popping an empty stack', () => {

@@ -51,7 +51,9 @@ describe('useSsrState SSR entry', () => {
   })
 
   it('throws when useSsrState is called directly outside Vue component context', () => {
-    expect(() => useSsrState()).toThrow('Vue Modeler DC plugin not installed')
+    expect(() => useSsrState()).toThrow(
+      'Provider hook called outside Vue component context. Use dc.resolve(provider) instead.',
+    )
   })
 
   it('fails on resolve when pushContainer and getContainer use separate module stacks', () => {
@@ -95,7 +97,7 @@ describe('useSsrState SSR entry', () => {
     // `useSsrState` reads the current container via `getContainer()` from module copy B.
     // With an empty moduleCopyB_stack it falls back to Vue context and throws.
     expect(() => app.$vueModelerDc.resolve(useSsrState)).toThrow(
-      'Vue Modeler DC plugin not installed',
+      'Provider hook called outside Vue component context. Use dc.resolve(provider) instead.',
     )
     expect(moduleCopyA_stack).toHaveLength(0)
 
