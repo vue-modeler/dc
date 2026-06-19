@@ -1,3 +1,10 @@
+## [2.2.0-v2-beta.12](https://github.com/vue-modeler/di/compare/v2.2.0-v2-beta.11...v2.2.0-v2-beta.12) (2026-06-19)
+
+### Bug Fixes
+
+* **di:** clarify error when provider hook is called outside setup ([bd4f8b5](https://github.com/vue-modeler/di/commit/bd4f8b512698104497b6d33392530de9411105a2))
+* **provider:** update Provider type to prevent null or undefined returns ([80dd62d](https://github.com/vue-modeler/di/commit/80dd62dfba9ac6745335bc0ccb13fc2b88afbb71))
+
 ## [2.2.0-v2-beta.11](https://github.com/vue-modeler/di/compare/v2.2.0-v2-beta.10...v2.2.0-v2-beta.11) (2026-06-10)
 
 ### Bug Fixes
