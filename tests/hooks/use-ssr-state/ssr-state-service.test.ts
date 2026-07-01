@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { SsrStateService } from '../../src/ssr-state-service/ssr-state-service'
+import { SsrStateService } from '../../../src/hooks/use-ssr-state/ssr-state-service'
 
 describe('SsrStateService', () => {
   let service: SsrStateService
@@ -38,64 +38,22 @@ describe('SsrStateService', () => {
       })
     })
 
-    it('should properly type serializer results', () => {
-      interface ComplexType {
-        str: string
-        num: number
-        nested: {
-          bool: boolean
-          arr: string[]
-        }
-      }
+    it('should skip undefined serializer values during injection', () => {
+      service.addSerializer(() => ({
+        extractionKey: 'ignored',
+        value: undefined,
+      }))
+      service.addSerializer(() => ({
+        extractionKey: 'kept',
+        value: 'value',
+      }))
 
-      const complexValue: ComplexType = {
-        str: 'test',
-        num: 123,
-        nested: {
-          bool: true,
-          arr: ['a', 'b']
-        }
-      }
+      const stateForInject: Record<string, unknown> = {}
+      service.injectState(stateForInject)
 
-      const serializer = () => ({
-        extractionKey: 'complex',
-        value: complexValue
+      expect(stateForInject.__SSR_STATE__).toEqual({
+        kept: 'value',
       })
-
-      // This line will fail TypeScript compilation if types don't match
-      const addedSerializer = service.addSerializer<ComplexType>(serializer)
-      
-      // Verify the returned serializer maintains the correct type
-      const result = addedSerializer()
-      expect(result.value).toEqual(complexValue)
-      expect(result.extractionKey).toBe('complex')
-
-      // Verify the type is maintained when extracting
-      const extracted = service.extractState('complex') as ComplexType | undefined
-      if (extracted) {
-        // TypeScript should recognize these as valid properties
-        expect(extracted.str).toBe('test')
-        expect(extracted.num).toBe(123)
-        expect(extracted.nested.bool).toBe(true)
-        expect(extracted.nested.arr).toEqual(['a', 'b'])
-      }
-    })
-
-    it('should enforce JsonValue constraint', () => {
-      service.addSerializer(() => ({
-        extractionKey: 'invalid',
-        value: ['wwwww']
-      }))
-
-      service.addSerializer(() => ({
-        extractionKey: 'invalid',
-        value: Symbol()
-      }))
-
-      service.addSerializer(() => ({
-        extractionKey: 'invalid',
-        value: undefined
-      }))
     })
   })
 
@@ -103,6 +61,14 @@ describe('SsrStateService', () => {
     beforeEach(() => {
       vi.spyOn(global, 'window', 'get').mockReturnValue({} as Window & typeof globalThis)
       service = new SsrStateService()
+    })
+
+    it('does not inject serialized state on the client', () => {
+      const stateForInject: Record<string, unknown> = {}
+
+      service.injectState(stateForInject)
+
+      expect(stateForInject).toEqual({})
     })
 
     it('should not add or remove serializers', () => {
@@ -152,11 +118,7 @@ describe('SsrStateService', () => {
     it('should handle invalid initial state', () => {
       globalThis.__INITIAL_STATE__ = 'invalid json'
       
-      expect(() => {
-        service = new SsrStateService()
-      }).toThrow()
-      
-      expect(service.extractState('test')).toBeUndefined()
+      expect(() => new SsrStateService()).toThrow()
     })
 
     it('should handle missing initial state', () => {

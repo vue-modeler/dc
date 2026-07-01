@@ -1,17 +1,26 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { createLocalVue, shallowMount } from '@vue/test-utils'
 import { vueModelerDc } from '../../src/plugin/vue-modeler-dc'
+import { DependencyContainerInternal } from '../../src/types'
+
 import '../../src/vue.d.ts'
 
-// Mock DescriptorsContainer
-vi.mock('../../src/plugin/descriptors-container', () => ({
-  DescriptorsContainer: vi.fn().mockImplementation(function() {
-    return Object.create(DescriptorsContainer.prototype) as DescriptorsContainer
-  })
-}))
+// Mock Container
+vi.mock('../../src/container/container', () => {
+  // type ContainerInstance = Record<string, unknown>
+  //   & { get: unknown; register: unknown; delete: unknown; resolve: unknown }
 
-// Import the mocked DescriptorsContainer
-import { DescriptorsContainer } from '../../src/plugin/descriptors-container'
+  const Container = vi.fn().mockImplementation(function () {
+    return Object.create(Container.prototype as object) as DependencyContainerInternal
+  })
+
+  ;(Container.prototype as { bindVueApp: (app: unknown) => void }).bindVueApp = vi.fn()
+
+  return { Container }
+})
+
+// Import the mocked Container
+import { Container } from '../../src/container/container'
 
 describe('vueModelerDc', () => {
   let LocalVue: ReturnType<typeof createLocalVue>
@@ -43,12 +52,70 @@ describe('vueModelerDc', () => {
 
     const appInstance = new LocalVue()
     
-    expect(DescriptorsContainer).toHaveBeenCalledTimes(1)
+    expect(Container).toHaveBeenCalledTimes(1)
     expect(appInstance.$vueModelerDc).toBeDefined()
-    expect(appInstance.$vueModelerDc).toBeInstanceOf(DescriptorsContainer)
+    expect(appInstance.$vueModelerDc).toBeInstanceOf(Container)
   })
 
-  
+  it('should use container passed from root Vue instance options', () => {
+    const providedContainer = new Container()
+
+    LocalVue.use(vueModelerDc)
+
+    const appInstance = new LocalVue({
+      vueModelerDc: { dc: providedContainer },
+    } as unknown as Record<string, unknown>)
+
+    expect(appInstance.$vueModelerDc).toBe(providedContainer)
+  })
+
+  it('should throw if invalid dc is provided via root Vue instance options', () => {
+    LocalVue.use(vueModelerDc)
+
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
+    try {
+      new LocalVue({
+        vueModelerDc: { dc: {} as unknown as DependencyContainerInternal },
+      } as unknown as Record<string, unknown>)
+
+      expect(consoleErrorSpy).toHaveBeenCalled()
+      expect(
+        consoleErrorSpy.mock.calls
+          .flat()
+          .some((arg) =>
+            typeof arg === 'string'
+              && arg.includes('Invalid `vueModelerDc.dc` option: expected a container compatible with internal container API'),
+          ),
+      ).toBe(true)
+    } finally {
+      consoleErrorSpy.mockRestore()
+    }
+  })
+
+  it('should not override pre-existing _vueModelerDc on instance/prototype', () => {
+    LocalVue.use(vueModelerDc)
+
+    const preexisting = new Container()
+    ;(LocalVue.prototype as unknown as { _vueModelerDc?: unknown })._vueModelerDc = preexisting
+
+    const appInstance = new LocalVue()
+
+    expect(Container).toHaveBeenCalledTimes(1) // only the preexisting instance above
+    expect(appInstance.$vueModelerDc).toBe(preexisting)
+  })
+
+  it('should throw from $vueModelerDc getter if beforeCreate did not initialize container', () => {
+    LocalVue.use(vueModelerDc)
+
+    expect(() => {
+      // Accessing getter on prototype bypasses beforeCreate lifecycle hook
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+      ;(LocalVue.prototype as unknown as { $vueModelerDc: unknown }).$vueModelerDc
+    }).toThrow(
+      'vueModelerDc: container is not initialized (expected vueModelerDc beforeCreate mixin to run and set `_vueModelerDc`)',
+    )
+  })
+
   it('should define $vueModelerDc property on the component', () => {
     LocalVue.use(vueModelerDc)
 
@@ -58,9 +125,9 @@ describe('vueModelerDc', () => {
 
     const wrapper = shallowMount(TestComponent, { localVue: LocalVue })
 
-    expect(DescriptorsContainer).toHaveBeenCalledTimes(1)
+    expect(Container).toHaveBeenCalledTimes(1)
     expect(wrapper.vm.$vueModelerDc).toBeDefined()
-    expect(wrapper.vm.$vueModelerDc).toBeInstanceOf(DescriptorsContainer)
+    expect(wrapper.vm.$vueModelerDc).toBeInstanceOf(Container)
   })
 
   it('should create unique DescriptorsContainer instances for different localVue instances', () => {
@@ -81,7 +148,7 @@ describe('vueModelerDc', () => {
     expect(wrapper2.vm.$vueModelerDc).toBeDefined()
     expect(wrapper1.vm.$vueModelerDc).not.toBe(wrapper2.vm.$vueModelerDc)
     
-    expect(DescriptorsContainer).toHaveBeenCalledTimes(2)
+    expect(Container).toHaveBeenCalledTimes(2)
   })
 
   it('should create single instance of DescriptorsContainer for nested components', () => {
@@ -101,9 +168,18 @@ describe('vueModelerDc', () => {
     // Force mount the child component
     const childWrapper = wrapper.findComponent({ name: 'child-component' }).vm.$mount()
     
-    expect(DescriptorsContainer).toHaveBeenCalledTimes(1)
+    expect(Container).toHaveBeenCalledTimes(1)
     expect(wrapper.vm.$vueModelerDc).toBeDefined()
     expect(childWrapper.$vueModelerDc).toBeDefined()
     expect(childWrapper.$vueModelerDc).toBe(wrapper.vm.$vueModelerDc)
+  })
+
+  it('should create unique Container instances for each app root instance', () => {
+    LocalVue.use(vueModelerDc)
+
+    const firstApp = new LocalVue()
+    const secondApp = new LocalVue()
+
+    expect(firstApp.$vueModelerDc).not.toBe(secondApp.$vueModelerDc)
   })
 })

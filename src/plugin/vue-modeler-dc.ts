@@ -1,38 +1,78 @@
-import { PluginFunction } from 'vue'
-import Vue from 'vue'
+import type { PluginFunction } from 'vue'
+import type { Vue as VueInstance, VueConstructor } from 'vue/types/vue'
 
-import { DescriptorsContainer } from './descriptors-container'
+import { Container } from '../container/container'
+import { isInternalDependencyContainer } from '../container/is-internal-dependency-container'
+import type { DependencyContainer, DependencyContainerInternal } from '../types'
 
-const mixinForVue2: ThisType<Vue> = {
-  beforeCreate (): void {
-    this._vueModelerDc = this.$parent?._vueModelerDc || new DescriptorsContainer()
-  },
+export interface VueModelerDcOptions {
+  /**
+   * Provide a pre-created container instance to be used by this app root (and inherited by children).
+   *
+   * Vue2 only: passed via `new Vue({ vueModelerDc: { dc } })`.
+   */
+  dc?: DependencyContainerInternal
 }
 
-export const vueModelerDc: PluginFunction<void> = (_Vue): void => {
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-  if ('_vueModelerDcInstalled' in _Vue.prototype && _Vue.prototype._vueModelerDcInstalled) {
+export const vueModelerDc: PluginFunction<unknown> = (
+  VueCtor: VueConstructor,
+): void => {
+  const vuePrototype = VueCtor.prototype as VueInstance
+
+  if (vuePrototype._vueModelerDcInstalled) {
     return
+  }
+
+  const mixinForVue2 = {
+    beforeCreate (this: VueInstance): void {
+      if (this._vueModelerDc) {
+        return
+      }
+
+      if (this.$parent?._vueModelerDc) {
+        this._vueModelerDc = this.$parent._vueModelerDc
+        return  
+      }
+
+      const instanceDc = (this.$options as unknown as { vueModelerDc?: VueModelerDcOptions })
+        .vueModelerDc
+        ?.dc
+
+      if (instanceDc && !isInternalDependencyContainer(instanceDc)) {
+        throw new Error(
+          'Invalid `vueModelerDc.dc` option: expected a container compatible with internal container API',
+        )
+      }
+
+      this._vueModelerDc = instanceDc ?? new Container()
+      this._vueModelerDc.bindVueApp(this)
+    },  
   }
   
   Object.defineProperty(
-    _Vue.prototype,
-    '_vueModelerDcInstalled', 
+    vuePrototype,
+    '_vueModelerDcInstalled',
     {
       value: true,
       writable: false,
     },
   )
-  
+
   Object.defineProperty(
-    _Vue.prototype,
-    '$vueModelerDc', 
+    vuePrototype,
+    '$vueModelerDc',
     {
-      get () {
-        return (this as Vue)._vueModelerDc;
+      get (this: VueInstance): DependencyContainer {
+        if (!this._vueModelerDc) {
+          throw new Error(
+            'vueModelerDc: container is not initialized (expected vueModelerDc beforeCreate mixin to run and set `_vueModelerDc`)',
+          )
+        }
+
+        return this._vueModelerDc
       },
     },
   )
 
-  _Vue.mixin(mixinForVue2)
+  VueCtor.mixin(mixinForVue2)
 }

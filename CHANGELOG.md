@@ -1,3 +1,64 @@
+## [2.2.0-v2-beta.12](https://github.com/vue-modeler/di/compare/v2.2.0-v2-beta.11...v2.2.0-v2-beta.12) (2026-06-19)
+
+### Bug Fixes
+
+* **di:** clarify error when provider hook is called outside setup ([bd4f8b5](https://github.com/vue-modeler/di/commit/bd4f8b512698104497b6d33392530de9411105a2))
+* **provider:** update Provider type to prevent null or undefined returns ([80dd62d](https://github.com/vue-modeler/di/commit/80dd62dfba9ac6745335bc0ccb13fc2b88afbb71))
+
+## [2.2.0-v2-beta.11](https://github.com/vue-modeler/di/compare/v2.2.0-v2-beta.10...v2.2.0-v2-beta.11) (2026-06-10)
+
+### Bug Fixes
+
+* **hooks:** enhance useVueApp to validate root Vue instance ([d93eefb](https://github.com/vue-modeler/di/commit/d93eefbc638eef5ff8fc63f82394d3fd224363e0))
+
+## [2.2.0-v2-beta.10](https://github.com/vue-modeler/di/compare/v2.2.0-v2-beta.9...v2.2.0-v2-beta.10) (2026-06-10)
+
+## [2.2.0-v2-beta.9](https://github.com/vue-modeler/di/compare/v2.2.0-v2-beta.8...v2.2.0-v2-beta.9) (2026-06-10)
+
+### Bug Fixes
+
+* **ci:** pass NPM_TOKEN when configuring npm registry for publish ([39bf829](https://github.com/vue-modeler/di/commit/39bf829603ee2fdab68dfcb0c392cc0580ab86dd))
+
+## [2.2.0-v2-beta.8](https://github.com/vue-modeler/di/compare/v2.2.0-v2-beta.7...v2.2.0-v2-beta.8) (2026-06-10)
+
+## [2.2.0-v2-beta.7](https://github.com/vue-modeler/di/compare/v2.2.0-v2-beta.6...v2.2.0-v2-beta.7) (2026-06-06)
+
+### Features
+
+* **provider, container:** add alias key functionality for providers ([ed36adc](https://github.com/vue-modeler/di/commit/ed36adc37a2d9cff37c59db9f5a65de8220acac1))
+
+## [2.2.0-v2-beta.6](https://github.com/vue-modeler/di/compare/v2.2.0-v2-beta.5...v2.2.0-v2-beta.6) (2026-06-03)
+
+## [2.2.0-v2-beta.5](https://github.com/vue-modeler/dc/compare/v2.2.0-v2-beta.4...v2.2.0-v2-beta.5) (2026-05-28)
+
+### Features
+
+* **container, types:** useVueApp hook hasa been added ([c8da175](https://github.com/vue-modeler/dc/commit/c8da175686894a5a0a5d9b308570ab9aa114eab8))
+
+## [2.2.0-v2-beta.4](https://github.com/vue-modeler/dc/compare/v2.2.0-v2-beta.3...v2.2.0-v2-beta.4) (2026-05-27)
+
+### Features
+
+* **container, provider:** enhance dependency resolution with cyclic detection and server-side handling ([f01f185](https://github.com/vue-modeler/dc/commit/f01f185100a4a29cb172400e0910291b813fa834))
+
+## [2.2.0-v2-beta.3](https://github.com/vue-modeler/dc/compare/v2.2.0-v2-beta.2...v2.2.0-v2-beta.3) (2026-05-27)
+
+### Features
+
+* **container, plugin:** added the ability to pass a container instance as vueapp parameters when creating ([19a1f50](https://github.com/vue-modeler/dc/commit/19a1f5075cd223bab6d7883da3c4d6372dc8d354))
+
+## [2.2.0-v2-beta.2](https://github.com/vue-modeler/dc/compare/v2.2.0-v2-beta.1...v2.2.0-v2-beta.2) (2026-05-27)
+
+### Bug Fixes
+
+* **container-stack:**  inject has been replaced  to getCurrentInstance to get container instance ([337b7b7](https://github.com/vue-modeler/dc/commit/337b7b799517e9224542649ba4d23ea8b9064410))
+
+## [2.2.0-v2-beta.1](https://github.com/vue-modeler/dc/compare/v2.1.0...v2.2.0-v2-beta.1) (2026-05-27)
+
+### Features
+
+* **v2:** port beta (v3) container/provider internals ([df38b7e](https://github.com/vue-modeler/dc/commit/df38b7e63562f0572f235bac0a6dc6eb91b774e1))
+
 # [2.1.0](https://github.com/vue-modeler/dc/compare/v2.0.3...v2.1.0) (2025-04-03)
 
 

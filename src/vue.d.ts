@@ -1,21 +1,23 @@
-
-import { DescriptorsContainer } from './plugin/descriptors-container'
-
-declare module 'vue' {
-  interface ComponentCustomProperties {
-    readonly $vueModelerDc?: DescriptorsContainer
-  }
-}
+import type { DependencyContainer } from './types'
+import type { DependencyContainerInternal } from './types'
+import type { VueModelerDcOptions } from './plugin/vue-modeler-dc'
 
 declare module 'vue/types/vue' {
   interface Vue {
-    /**
-     * Currently installed container instance.
-     */
-    readonly $vueModelerDc?: DescriptorsContainer
-    _vueModelerDc: DescriptorsContainer
+    _vueModelerDc?: DependencyContainerInternal
+    _vueModelerDcInstalled?: boolean
+    readonly $vueModelerDc: DependencyContainer
   }
 }
 
-// normally this is only needed in .d.ts files
+declare module 'vue/types/options' {
+  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+  interface ComponentOptions<V> {
+    /**
+     * Vue2 only: per-app configuration for vueModelerDc.
+     */
+    vueModelerDc?: VueModelerDcOptions
+  }
+}
+
 export {}
