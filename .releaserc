@@ -2,7 +2,7 @@
     "branches": [
         "main",
         { "name": "beta", "prerelease": true },
-        { "name": "v2", "range": "2.x" },
+        { "name": "v2-main", "range": "2.x" },
         { "name": "v2-beta", "prerelease": true }
     ],
     "plugins": [
