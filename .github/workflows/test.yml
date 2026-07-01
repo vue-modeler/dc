@@ -2,9 +2,9 @@ name: Test
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, v2-main ]
   pull_request:
-    branches: [ main ]
+    branches: [ main, v2-main ]
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 jobs:

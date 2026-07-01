@@ -5,7 +5,7 @@ on:
     branches:
       - main
       - beta
-      - v2
+      - v2-main
       - v2-beta
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
