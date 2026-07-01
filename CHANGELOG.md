@@ -1,3 +1,9 @@
+## [2.2.1-v2-beta.1](https://github.com/vue-modeler/di/compare/v2.2.0...v2.2.1-v2-beta.1) (2026-07-01)
+
+### Bug Fixes
+
+* **releaserc:** update v2-main branch configuration to include channel for latest releases ([6c3e5d3](https://github.com/vue-modeler/di/commit/6c3e5d344475451a30274487e2b385ba16dc56ed))
+
 ## [2.2.0](https://github.com/vue-modeler/di/compare/v2.1.1...v2.2.0) (2026-07-01)
 
 ### Features
