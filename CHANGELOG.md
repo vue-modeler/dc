@@ -1,3 +1,9 @@
+## [2.2.0-v2-beta.13](https://github.com/vue-modeler/di/compare/v2.2.0-v2-beta.12...v2.2.0-v2-beta.13) (2026-07-01)
+
+### Bug Fixes
+
+* **workflows:** update branch names for release and test workflows ([be7a162](https://github.com/vue-modeler/di/commit/be7a162fd208d2698347487eb25e9545c3ae49fb))
+
 ## [2.2.0-v2-beta.12](https://github.com/vue-modeler/di/compare/v2.2.0-v2-beta.11...v2.2.0-v2-beta.12) (2026-06-19)
 
 ### Bug Fixes
