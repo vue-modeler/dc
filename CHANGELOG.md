@@ -1,3 +1,9 @@
+## [2.2.0-v2-beta.14](https://github.com/vue-modeler/di/compare/v2.2.0-v2-beta.13...v2.2.0-v2-beta.14) (2026-07-01)
+
+### Bug Fixes
+
+* **releaserc:** add 'channel' property to 'v2-main' branch for release management ([6bc1c1e](https://github.com/vue-modeler/di/commit/6bc1c1e9296b567b3f927e2c268b28973a4c01ae))
+
 ## [2.2.0-v2-beta.13](https://github.com/vue-modeler/di/compare/v2.2.0-v2-beta.12...v2.2.0-v2-beta.13) (2026-07-01)
 
 ### Bug Fixes

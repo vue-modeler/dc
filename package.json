@@ -1,7 +1,7 @@
 {
   "type": "module",
   "name": "@vue-modeler/di",
-  "version": "2.2.0-v2-beta.13",
+  "version": "2.2.0-v2-beta.14",
   "engines": {
     "node": ">=24",
     "pnpm": ">=11"
