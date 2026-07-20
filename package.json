@@ -9,6 +9,21 @@
   "description": "Dependency container based on VUE effected scope and shared composable.",
   "author": "abratko",
   "license": "MIT",
+  "keywords": [
+    "vue",
+    "di",
+    "dependency-injection",
+    "dependency-container",
+    "ioc",
+    "service-locator",
+    "composable",
+    "shared-composable",
+    "effectscope",
+    "ssr",
+    "mvvm",
+    "DDD",
+    "typescript"
+  ],
   "files": [
     "dist"
   ],
