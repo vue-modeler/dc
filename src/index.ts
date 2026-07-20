@@ -1,8 +1,15 @@
-export * from './get-container'
-export * from './provider'
-export * from './is-provider'
-export * from './plugin'
-export * from './types'
-export * from './ssr-state-service/ssr-state-service'
-export * from './ssr-state-service/types'
-export * from './ssr-state-service/provider'
+export * from './provider/provider'
+export * from './plugin/vue-modeler-dc'
+export * from './container/container'
+export type {
+  DependencyContainerPlugin,
+  DepFactory as DependencyFactory,
+  DependencyContainerInternal,
+  DependencyContainer,
+  Provider,
+  ProviderOptions,
+} from './types'
+export * from './hooks/use-ssr-state/ssr-state-service'
+export * from './hooks/use-ssr-state/types'
+export * from './hooks/use-ssr-state/use-ssr-state'
+export * from './hooks/use-vue-app/use-vue-app'
