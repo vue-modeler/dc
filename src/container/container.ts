@@ -1,4 +1,4 @@
-import type { Vue as VueInstance } from 'vue/types/vue'
+import type { VueApp } from '../vue-app'
 
 import { popContainer, pushContainer } from './container-stack'
 import { getProviderByAliasKey } from '../provider/provider-aliases'
@@ -9,13 +9,13 @@ import type { DependencyContainerInternal } from '../types'
 export class Container implements DependencyContainerInternal {
   protected itemsByKey = new Map<symbol, Descriptor<unknown>>()
   protected constructingKeys = new Set<symbol>()
-  protected _vueApp: VueInstance | undefined
+  protected _vueApp: VueApp | undefined
 
-  get vueApp (): VueInstance | undefined {
+  get vueApp (): VueApp | undefined {
     return this._vueApp
   }
 
-  bindVueApp (app: VueInstance): void {
+  bindVueApp (app: VueApp): void {
     this._vueApp = app
   }
 

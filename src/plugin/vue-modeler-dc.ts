@@ -1,78 +1,42 @@
-import type { PluginFunction } from 'vue'
-import type { Vue as VueInstance, VueConstructor } from 'vue/types/vue'
+import type { VueApp } from '../vue-app'
 
 import { Container } from '../container/container'
 import { isInternalDependencyContainer } from '../container/is-internal-dependency-container'
-import type { DependencyContainer, DependencyContainerInternal } from '../types'
+import type { DependencyContainerInternal } from '../types'
+
+export const VUE_MODELER_DC_KEY = 'vueModelerDc'
 
 export interface VueModelerDcOptions {
   /**
-   * Provide a pre-created container instance to be used by this app root (and inherited by children).
+   * Provide a pre-created container instance to be used by this app.
    *
-   * Vue2 only: passed via `new Vue({ vueModelerDc: { dc } })`.
+   * Passed via `app.use(vueModelerDc, { dc })`.
    */
   dc?: DependencyContainerInternal
 }
 
-export const vueModelerDc: PluginFunction<unknown> = (
-  VueCtor: VueConstructor,
-): void => {
-  const vuePrototype = VueCtor.prototype as VueInstance
+const installedApps = new WeakSet<VueApp>()
 
-  if (vuePrototype._vueModelerDcInstalled) {
-    return
-  }
+export const vueModelerDc = {
+  install (app: VueApp, options: VueModelerDcOptions = {}): void {
+    if (installedApps.has(app)) {
+      return
+    }
 
-  const mixinForVue2 = {
-    beforeCreate (this: VueInstance): void {
-      if (this._vueModelerDc) {
-        return
-      }
+    const instanceDc = options.dc
 
-      if (this.$parent?._vueModelerDc) {
-        this._vueModelerDc = this.$parent._vueModelerDc
-        return  
-      }
+    if (instanceDc && !isInternalDependencyContainer(instanceDc)) {
+      throw new Error(
+        'Invalid `vueModelerDc.dc` option: expected a container compatible with internal container API',
+      )
+    }
 
-      const instanceDc = (this.$options as unknown as { vueModelerDc?: VueModelerDcOptions })
-        .vueModelerDc
-        ?.dc
+    const dc: DependencyContainerInternal = instanceDc ?? new Container()
+    dc.bindVueApp(app)
 
-      if (instanceDc && !isInternalDependencyContainer(instanceDc)) {
-        throw new Error(
-          'Invalid `vueModelerDc.dc` option: expected a container compatible with internal container API',
-        )
-      }
-
-      this._vueModelerDc = instanceDc ?? new Container()
-      this._vueModelerDc.bindVueApp(this)
-    },  
-  }
-  
-  Object.defineProperty(
-    vuePrototype,
-    '_vueModelerDcInstalled',
-    {
-      value: true,
-      writable: false,
-    },
-  )
-
-  Object.defineProperty(
-    vuePrototype,
-    '$vueModelerDc',
-    {
-      get (this: VueInstance): DependencyContainer {
-        if (!this._vueModelerDc) {
-          throw new Error(
-            'vueModelerDc: container is not initialized (expected vueModelerDc beforeCreate mixin to run and set `_vueModelerDc`)',
-          )
-        }
-
-        return this._vueModelerDc
-      },
-    },
-  )
-
-  VueCtor.mixin(mixinForVue2)
+    app.provide(VUE_MODELER_DC_KEY, dc)
+    app.config.globalProperties.$vueModelerDc = dc
+    
+    installedApps.add(app)
+  },
 }

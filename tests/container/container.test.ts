@@ -1,9 +1,10 @@
 import { describe, expect, it, vi } from 'vitest'
 
+import type { VueApp } from '../../src/vue-app'
+
 import { Container } from '../../src/container/container'
 import { provider } from '../../src/provider/provider'
 import type { DependencyContainer } from '../../src/types'
-import type { Vue as VueInstance } from 'vue/types/vue'
 
 describe('Container', () => {
   it('binds and exposes vueApp instance', () => {
@@ -11,7 +12,7 @@ describe('Container', () => {
 
     expect(container.vueApp).toBeUndefined()
 
-    const app = {} as unknown as VueInstance
+    const app = {} as unknown as VueApp
     container.bindVueApp(app)
     expect(container.vueApp).toBe(app)
   })

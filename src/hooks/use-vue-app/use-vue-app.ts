@@ -1,19 +1,19 @@
-import type { Vue as VueInstance } from 'vue/types/vue'
+import type { VueApp } from '../../vue-app'
 
 import { provider } from '../../provider/provider'
 
 /**
- * Returns the root Vue instance bound to the current container.
+ * Returns the root Vue app bound to the current container.
  *
  * IMPORTANT: must be called only AFTER the plugin has bound the Vue app
- * (i.e. after the root `beforeCreate` mixin has run).
+ * (i.e. after `app.use(vueModelerDc)`).
  */
-export const useVueApp = provider<VueInstance>(({ dc }) => {
+export const useVueApp = provider<VueApp>(({ dc }) => {
   const vueApp = dc.vueApp
 
   if (!vueApp) {
     throw new Error(
-      'useVueApp: root Vue instance is not bound to the container (expected vueModelerDc beforeCreate mixin to run)',
+      'useVueApp: root Vue app is not bound to the container (expected app.use(vueModelerDc) to run)',
     )
   }
 

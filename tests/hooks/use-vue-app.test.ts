@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { effectScope, getCurrentInstance } from 'vue'
-import type { Vue as VueInstance } from 'vue/types/vue'
+import type { VueApp } from '../../src/vue-app'
 
 import { Container } from '../../src/container/container'
 import { useVueApp } from '../../src/hooks/use-vue-app/use-vue-app'
@@ -25,8 +25,8 @@ describe('useVueApp', () => {
     )
   })
 
-  it('returns the root Vue instance when the container is bound', () => {
-    const app = {} as unknown as VueInstance
+  it('returns the root Vue app when the container is bound', () => {
+    const app = {} as unknown as VueApp
     container.bindVueApp(app)
 
     const result = effectScope(true).run(() => useVueApp())
@@ -34,9 +34,9 @@ describe('useVueApp', () => {
     expect(result).toBe(app)
   })
 
-  it('throws when the root Vue instance is not bound yet', () => {
+  it('throws when the root Vue app is not bound yet', () => {
     expect(() => effectScope(true).run(() => useVueApp())).toThrow(
-      'useVueApp: root Vue instance is not bound to the container (expected vueModelerDc beforeCreate mixin to run)',
+      'useVueApp: root Vue app is not bound to the container (expected app.use(vueModelerDc) to run)',
     )
   })
 })

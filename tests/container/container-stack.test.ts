@@ -18,12 +18,6 @@ vi.mock('vue', async () => {
   }
 })
 
-interface InstanceProxy {
-  proxy: {
-    $vueModelerDc: Container
-  } & Vue
-}
-
 function clearContainerStack (): void {
   for (;;) {
     try {
@@ -47,7 +41,9 @@ describe('container stack', () => {
 
   it('returns container from current instance proxy when available', () => {
     const container = new Container()
-    vi.mocked(getCurrentInstance).mockReturnValue({ proxy: { $vueModelerDc: container } } as never as InstanceProxy)
+    vi.mocked(getCurrentInstance).mockReturnValue(
+      { proxy: { $vueModelerDc: container } } as unknown as ReturnType<typeof getCurrentInstance>,
+    )
 
     expect(getContainerFromCurrentVueApp()).toBe(container)
   })
@@ -61,7 +57,9 @@ describe('container stack', () => {
   })
 
   it('throws when plugin container is missing on current instance', () => {
-    vi.mocked(getCurrentInstance).mockReturnValue({ proxy: {} } as never as InstanceProxy)
+    vi.mocked(getCurrentInstance).mockReturnValue(
+      { proxy: {} } as unknown as ReturnType<typeof getCurrentInstance>,
+    )
 
     expect(() => getContainerFromCurrentVueApp()).toThrow(
       'Vue Modeler DC plugin not installed',

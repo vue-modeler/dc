@@ -21,16 +21,15 @@ vi.mock('vue', async () => {
 describe('provider', () => {
   let container: Container
 
-  beforeEach(() => {
+  beforeEach(async () => {
     container = new Container()
     vi.mocked(getCurrentInstance).mockReset()
     vi.mocked(getCurrentInstance).mockReturnValue(
       { proxy: { $vueModelerDc: container } } as unknown as ReturnType<typeof getCurrentInstance>,
     )
-    vi.mocked(getCurrentScope).mockImplementation((async () => {
-      const actual = await vi.importActual<typeof import('vue')>('vue')
-      return actual.getCurrentScope()
-    }) as unknown as typeof getCurrentScope)
+    const actual = await vi.importActual<typeof import('vue')>('vue')
+    vi.mocked(getCurrentScope).mockReset()
+    vi.mocked(getCurrentScope).mockImplementation(() => actual.getCurrentScope())
     vi.mocked(inject).mockReset()
     vi.mocked(onScopeDispose).mockClear()
   })

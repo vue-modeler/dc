@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { createLocalVue } from '@vue/test-utils'
-import type Vue from 'vue'
+import { createApp, createSSRApp, defineComponent, h } from 'vue'
+import { renderToString } from 'vue/server-renderer'
+import type { VueApp } from '../../../src/vue-app'
 
 import * as containerStack from '../../../src/container/container-stack'
 import { useSsrState } from '../../../src/hooks/use-ssr-state/use-ssr-state'
@@ -10,24 +11,31 @@ import type { DependencyContainerInternal } from '../../../src/types'
 
 import '../../../src/vue.d.ts'
 
-describe('useSsrState SSR entry', () => {
-  let LocalVue: typeof Vue
+function createMountedApp (rootComponent = defineComponent({ render: () => h('div') })): {
+  app: VueApp
+  el: HTMLDivElement
+} {
+  const app = createApp(rootComponent)
+  app.use(vueModelerDc)
+  const el = document.createElement('div')
+  app.mount(el)
+  return { app, el }
+}
 
+describe('useSsrState SSR entry', () => {
   beforeEach(() => {
-    LocalVue = createLocalVue()
-    LocalVue.use(vueModelerDc)
+    document.body.innerHTML = ''
   })
 
   it('resolves useSsrState in SSR entry outside Vue component context', () => {
-    const app = new LocalVue({
-      render: (h) => h('div'),
-    })
-    app.$mount()
+    const { app } = createMountedApp()
 
-    const ssrStateService = app.$vueModelerDc.resolve(useSsrState)
+    const ssrStateService = app.config.globalProperties.$vueModelerDc.resolve(useSsrState)
 
     expect(ssrStateService).toBeInstanceOf(SsrStateService)
-    expect(app.$vueModelerDc.resolve(useSsrState)).toBe(ssrStateService)
+    expect(app.config.globalProperties.$vueModelerDc.resolve(useSsrState)).toBe(ssrStateService)
+
+    app.unmount()
   })
 
   it('resolves via container stack without Vue instance fallback', () => {
@@ -38,16 +46,14 @@ describe('useSsrState SSR entry', () => {
       throw new Error('getContainerFromCurrentVueApp should not be called')
     })
 
-    const app = new LocalVue({
-      render: (h) => h('div'),
-    })
-    app.$mount()
+    const { app } = createMountedApp()
 
-    expect(() => app.$vueModelerDc.resolve(useSsrState)).not.toThrow()
-    expect(app.$vueModelerDc.resolve(useSsrState)).toBeInstanceOf(SsrStateService)
+    expect(() => app.config.globalProperties.$vueModelerDc.resolve(useSsrState)).not.toThrow()
+    expect(app.config.globalProperties.$vueModelerDc.resolve(useSsrState)).toBeInstanceOf(SsrStateService)
     expect(getContainerFromCurrentVueAppSpy).not.toHaveBeenCalled()
 
     getContainerFromCurrentVueAppSpy.mockRestore()
+    app.unmount()
   })
 
   it('throws when useSsrState is called directly outside Vue component context', () => {
@@ -61,22 +67,16 @@ describe('useSsrState SSR entry', () => {
     // (e.g. CJS + ESM, or duplicated dependency graph). Each copy has its own module-level
     // singleton `containerStack`. If `pushContainer` writes to stack A, but `getContainer`
     // reads from stack B, then `provider()` will fall back to Vue context and throw.
-    //
-    // Fix in an app: ensure DI package is deduplicated in the bundler / lockfile so that
-    // both `Container.resolve()` and `provider()` share the same module singleton stack.
     const moduleCopyA_stack: DependencyContainerInternal[] = []
     const moduleCopyB_stack: DependencyContainerInternal[] = []
 
     const pushContainerSpy = vi.spyOn(containerStack, 'pushContainer').mockImplementation((container) => {
-      // container-stack.ts from module copy A
       moduleCopyA_stack.push(container)
     })
     const popContainerSpy = vi.spyOn(containerStack, 'popContainer').mockImplementation(() => {
-      // container-stack.ts from module copy A
       moduleCopyA_stack.pop()
     })
     const getContainerSpy = vi.spyOn(containerStack, 'getContainer').mockImplementation(() => {
-      // container-stack.ts from module copy B
       const fromModuleCopyB = moduleCopyB_stack.at(-1)
 
       if (fromModuleCopyB) {
@@ -86,17 +86,11 @@ describe('useSsrState SSR entry', () => {
       return containerStack.getContainerFromCurrentVueApp()
     })
 
-    const app = new LocalVue({
-      render: (h) => h('div'),
-    })
-    app.$mount()
+    const { app } = createMountedApp()
 
     expect(moduleCopyB_stack).toHaveLength(0)
 
-    // `Container.resolve()` calls `pushContainer()` from module copy A, but `provider()` inside
-    // `useSsrState` reads the current container via `getContainer()` from module copy B.
-    // With an empty moduleCopyB_stack it falls back to Vue context and throws.
-    expect(() => app.$vueModelerDc.resolve(useSsrState)).toThrow(
+    expect(() => app.config.globalProperties.$vueModelerDc.resolve(useSsrState)).toThrow(
       'Provider hook called outside Vue component context. Use dc.resolve(provider) instead.',
     )
     expect(moduleCopyA_stack).toHaveLength(0)
@@ -104,46 +98,42 @@ describe('useSsrState SSR entry', () => {
     pushContainerSpy.mockRestore()
     popContainerSpy.mockRestore()
     getContainerSpy.mockRestore()
+    app.unmount()
   })
 
-  it('allows SSR entry to inject state registered during component render', () => {
-    // SSR mode: `SsrStateService` only collects serializers on the server.
-    const windowSpy = vi.spyOn(global, 'window', 'get').mockReturnValue(
+  it('allows SSR entry to inject state registered during component render', async () => {
+    const windowSpy = vi.spyOn(globalThis, 'window', 'get').mockReturnValue(
       undefined as unknown as Window & typeof globalThis,
     )
 
-    const TestComponent = {
-      setup (): Record<string, never> {
-        // During SSR render, providers run inside Vue setup and register into the app container.
-        const ssrState = useSsrState()
+    try {
+      const TestComponent = defineComponent({
+        setup (): Record<string, never> {
+          const ssrState = useSsrState()
 
-        // Provider consumers register serializers while components are rendered.
-        ssrState.addSerializer(() => ({
-          extractionKey: 'model',
-          value: { id: 1 },
-        }))
+          ssrState.addSerializer(() => ({
+            extractionKey: 'model',
+            value: { id: 1 },
+          }))
 
-        return {}
-      },
-      render (h: Vue.CreateElement): Vue.VNode {
-        return h('div')
-      },
+          return {}
+        },
+        render: () => h('div'),
+      })
+
+      const app = createSSRApp(TestComponent)
+      app.use(vueModelerDc)
+
+      await renderToString(app)
+
+      const ssrStateService = app.config.globalProperties.$vueModelerDc.resolve(useSsrState)
+      const ctxState: Record<string, unknown> = {}
+
+      ssrStateService.injectState(ctxState)
+
+      expect(ctxState.__SSR_STATE__).toEqual({ model: { id: 1 } })
+    } finally {
+      windowSpy.mockRestore()
     }
-
-    const app = new LocalVue({
-      render: (h) => h(TestComponent),
-    })
-    app.$mount()
-
-    // SSR entry (outside Vue component context): resolve from the app container.
-    const ssrStateService = app.$vueModelerDc.resolve(useSsrState)
-    const ctxState: Record<string, unknown> = {}
-
-    // The entry injects serialized state into the server context.
-    ssrStateService.injectState(ctxState)
-
-    expect(ctxState.__SSR_STATE__).toEqual({ model: { id: 1 } })
-
-    windowSpy.mockRestore()
   })
 })
