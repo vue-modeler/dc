@@ -1,9 +1,10 @@
-import { EffectScope, effectScope, onScopeDispose } from 'vue'
+import { effectScope, getCurrentScope, onScopeDispose, type EffectScope } from 'vue'
 
 import { DependencyContainer, DependencyDescriptor, DepFactory } from '../types'
 
 export class Descriptor<Target> implements DependencyDescriptor<Target> {
   protected _parentScopeCount = 0
+  protected parentScopes = new WeakSet<EffectScope>()
   protected _instance: Target
   protected _instanceScope: EffectScope
   readonly factory: unknown
@@ -35,12 +36,23 @@ export class Descriptor<Target> implements DependencyDescriptor<Target> {
     return this._parentScopeCount
   }
 
-  subscribeOnParentScopeDispose (onParentScopeDispose: typeof onScopeDispose): void {
+  subscribeOnParentScopeDispose (onParentScopeDispose: typeof onScopeDispose): boolean {
+    const parentScope = getCurrentScope()
+    if (parentScope && this.parentScopes.has(parentScope)) {
+      return false
+    }
+
+    if (parentScope) {
+      this.parentScopes.add(parentScope)
+    }
+
     this._parentScopeCount++
     
     // this is potential memory leak, because we don't know
     // if the parent scope will be disposed
     onParentScopeDispose(() => { this.disposeScope() })
+
+    return true
   }
 
   protected callInstanceDestructor (instance: unknown): void {

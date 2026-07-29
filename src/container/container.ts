@@ -53,7 +53,12 @@ export class Container implements DependencyContainerInternal {
     try {
       pushContainer(this)
       if (scope) {
-        return scope.run(() => providerFn()) as Target
+        const result = scope.run(() => providerFn())
+        if (!result) {
+          throw new Error('Cannot resolve in an inactive EffectScope')
+        }
+
+        return result
       }
       return providerFn()
     } finally {

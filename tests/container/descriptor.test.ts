@@ -1,11 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { effectScope, onScopeDispose } from 'vue'
+import { effectScope, getCurrentScope, onScopeDispose } from 'vue'
 
 import { Descriptor } from '../../src/container/descriptor'
 import type { DependencyContainer } from '../../src/types'
 
 vi.mock('vue', () => ({
   effectScope: vi.fn(),
+  getCurrentScope: vi.fn(),
   onScopeDispose: vi.fn(),
 }))
 
@@ -32,6 +33,7 @@ describe('Descriptor', () => {
     }
 
     vi.mocked(onScopeDispose).mockReset()
+    vi.mocked(getCurrentScope).mockReset()
     vi.mocked(effectScope).mockReturnValue(scope as never)
   })
 

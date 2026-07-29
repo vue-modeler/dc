@@ -178,6 +178,26 @@ describe('Container', () => {
     expect(container.size).toBe(0)
   })
 
+  it('subscribes an existing descriptor only once per custom scope', () => {
+    const container = new Container()
+    const instance = { id: 'deduplicated-scope', destructor: vi.fn() }
+    const useDependency = provider(() => instance)
+    const deleteSpy = vi.spyOn(container, 'delete')
+    const scope = createScope()
+
+    container.resolve(useDependency, scope)
+    container.resolve(useDependency, scope)
+    container.resolve(useDependency, scope)
+
+    expect(container.get(useDependency)?.parentScopeCount).toBe(1)
+
+    scope.stop()
+
+    expect(deleteSpy).toHaveBeenCalledTimes(1)
+    expect(container.size).toBe(0)
+    expect(instance.destructor).toHaveBeenCalledTimes(1)
+  })
+
   it('keeps a shared instance until the last custom scope stops', () => {
     const container = new Container()
     const useDependency = provider(() => ({ id: 'shared-scopes' }))
@@ -211,5 +231,17 @@ describe('Container', () => {
     expect(result).toEqual({ id: 'persistent' })
     expect(deleteSpy).not.toHaveBeenCalled()
     expect(container.get(useDependency)?.instance).toEqual({ id: 'persistent' })
+  })
+
+  it('throws when resolving in an inactive custom scope', () => {
+    const container = new Container()
+    const useDependency = provider(() => ({ id: 'inactive-scope' }))
+    const scope = createScope()
+
+    scope.stop()
+
+    expect(() => container.resolve(useDependency, scope)).toThrow(
+      'Cannot resolve in an inactive EffectScope',
+    )
   })
 })

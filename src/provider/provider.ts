@@ -53,7 +53,10 @@ export function provider<Target> (
     // when the associated effect scope is stopped.
     // Therefore, we need to delete the dependency descriptor from the container
     // only after dependency descriptor subscriber is called.
-    dependencyDescriptor.subscribeOnParentScopeDispose(onScopeDispose)
+    if (!dependencyDescriptor.subscribeOnParentScopeDispose(onScopeDispose)) {
+      return dependencyDescriptor.instance
+    }
+
     onScopeDispose(() => {
       if (dependencyDescriptor.parentScopeCount > 0) {
         return

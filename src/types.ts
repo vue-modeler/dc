@@ -27,7 +27,7 @@ export interface DependencyDescriptor<Target> {
   readonly factory: unknown
   readonly instance: Target
   readonly parentScopeCount: number
-  subscribeOnParentScopeDispose: (onParentScopeDispose: (fn: () => void) => void) => void
+  subscribeOnParentScopeDispose: (onParentScopeDispose: (fn: () => void) => void) => boolean
   /** Disposes instance when descriptor is replaced after redefine. */
   disposeForReplace: () => void
 }
