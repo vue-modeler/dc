@@ -20,7 +20,7 @@ Lightweight dependency container for Vue based on `effectScope`. Shares instance
 - Lazy creation and automatic cleanup when unused
 - Optional persistent instances
 - SSR compatible
-- Service locator via `dc.resolve()`
+- Service locator via `dc.resolve()` and scope-bound cleanup via `createScope()`
 - `redefine()` for tests and SSR mocks
 - Type-safe, lightweight API
 

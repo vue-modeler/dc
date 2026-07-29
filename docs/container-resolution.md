@@ -8,7 +8,8 @@ The current public surface is intentionally small:
 
 - `provider(factory, options?)`
 - `provider.redefine(factory)`
-- `DependencyContainer.resolve(providerOrKey)`
+- `createScope()`
+- `DependencyContainer.resolve(providerOrKey, scope?)`
 - `DependencyContainer.size`
 
 `DependencyContainer` is the public contract. Internal methods such as `get`, `delete`, or `register` belong to `DescriptorContainer` and must not be used as part of the documented API.
@@ -102,17 +103,22 @@ const child = dc.resolve(useChild)
 
 ### Important lifecycle note for `resolve()`
 
-`container.resolve(useX)` creates or returns the instance in that container, but it does **not** bind the instance to the caller's Vue scope.
+- **Without `scope`:** create or reuse via the provider; no caller-scope binding if no Vue scope is current.
+- **With `scope`:** run inside that scope so non-persistent instances attach `onScopeDispose`; `scope.stop()` disposes when it is the last parent scope.
+- **`resolve` requires a provider object or a provider-owned key** (`asKey` / `assignKey`). Orphan symbols throw.
+- **`persistentInstance: true`** ignores scope cleanup (same as setup).
 
-If you pass a `symbol`, `resolve(symbol)` returns an already registered instance for that key and throws if no descriptor exists.
+```typescript
+import { createScope } from '@vue-modeler/di'
 
-That means:
+const scope = createScope()
+const instance = dc.resolve(useMyService, scope)
 
-- `resolve()` is safe to call outside setup;
-- non-persistent providers resolved this way stay in the container;
-- with the current public API there is no public delete/dispose method, so such instances effectively live as long as the container itself.
+// later
+scope.stop() // triggers onScopeDispose → descriptor dispose / container cleanup
+```
 
-In other words, `resolve()` behaves like a runtime get-or-create entrypoint, not like setup-bound automatic cleanup.
+Callers may pass any detached `EffectScope` they already hold; `createScope()` is the recommended helper.
 
 ## Why bare runtime `useX()` is unsafe
 
