@@ -1,3 +1,4 @@
+export * from './scope/create-scope'
 export * from './provider/provider'
 export * from './plugin/vue-modeler-dc'
 export * from './container/container'
