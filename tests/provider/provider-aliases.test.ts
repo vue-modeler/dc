@@ -116,6 +116,20 @@ describe('provider aliases', () => {
         'Provider alias key is already assigned to another provider',
       )
     })
+
+    it('registers the provider default asKey in the alias map at creation', () => {
+      const useDependency = provider(() => 'value')
+
+      expect(getProviderByAliasKey(useDependency.asKey)).toBe(useDependency)
+    })
+
+    it('registers a custom options.key in the alias map at creation', () => {
+      const key = Symbol('custom')
+      const useDependency = provider(() => 'value', { key })
+
+      expect(useDependency.asKey).toBe(key)
+      expect(getProviderByAliasKey(key)).toBe(useDependency)
+    })
   })
 
   describe('assignKey', () => {

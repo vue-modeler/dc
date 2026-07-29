@@ -92,5 +92,7 @@ export function provider<Target> (
     },
   })
 
+  registerProviderAlias([providerKey], provider)
+
   return provider
 }
