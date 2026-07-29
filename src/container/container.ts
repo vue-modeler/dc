@@ -38,23 +38,17 @@ export class Container implements DependencyContainerInternal {
   }
 
   resolve<Target> (keyOrProvider: symbol | Provider<Target>): Target {
-    const depDescriptor = this.get<Target>(keyOrProvider)
-
-    if (depDescriptor) {
-      return depDescriptor.instance
-    }
-
-    const provider = typeof keyOrProvider === 'symbol' 
+    const providerFn = typeof keyOrProvider === 'symbol'
       ? getProviderByAliasKey<Target>(keyOrProvider)
       : keyOrProvider
-        
-    if (!provider) {
+
+    if (!providerFn) {
       throw new Error('Dependency descriptor not found for symbol key')
     }
 
     try {
       pushContainer(this)
-      return provider()
+      return providerFn()
     } finally {
       popContainer()
     }

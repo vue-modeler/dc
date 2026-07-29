@@ -29,7 +29,7 @@ describe('Container', () => {
     expect(container.size).toBe(1)
   })
 
-  it('registers descriptors directly by symbol key', () => {
+  it('registers descriptors directly by symbol key but resolve requires a provider-owned key', () => {
     const container = new Container()
     const key = Symbol('registered')
     const factory = vi.fn(() => ({ id: 'registered' }))
@@ -38,8 +38,10 @@ describe('Container', () => {
 
     expect(factory).toHaveBeenCalledWith({ dc: container })
     expect(container.get(key)).toBe(descriptor)
-    expect(container.resolve<typeof descriptor.instance>(key)).toBe(descriptor.instance)
     expect(container.size).toBe(1)
+    expect(() => container.resolve(key)).toThrow(
+      'Dependency descriptor not found for symbol key',
+    )
   })
 
   it('reuses the existing descriptor when factory reference is unchanged', () => {
@@ -102,6 +104,17 @@ describe('Container', () => {
     expect(result.container).toBe(container)
     expect(result.child.container).toBe(container)
     expect(container.size).toBe(2)
+  })
+
+  it('resolves an existing instance by provider.asKey through the provider', () => {
+    const container = new Container()
+    const useDependency = provider(() => ({ id: 'by-as-key' }))
+
+    const first = container.resolve(useDependency)
+    const second = container.resolve(useDependency.asKey)
+
+    expect(second).toBe(first)
+    expect(container.size).toBe(1)
   })
 
   it('throws when resolving an unknown symbol key', () => {
