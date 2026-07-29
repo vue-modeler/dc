@@ -1,3 +1,4 @@
+import type { EffectScope } from 'vue'
 import type { Vue as VueInstance } from 'vue/types/vue'
 
 import { popContainer, pushContainer } from './container-stack'
@@ -37,7 +38,10 @@ export class Container implements DependencyContainerInternal {
     return this.itemsByKey.get(this.resolveSymbolKey(key)) as DependencyDescriptor<Target> | undefined
   }
 
-  resolve<Target> (keyOrProvider: symbol | Provider<Target>): Target {
+  resolve<Target> (
+    keyOrProvider: symbol | Provider<Target>,
+    scope?: EffectScope,
+  ): Target {
     const providerFn = typeof keyOrProvider === 'symbol'
       ? getProviderByAliasKey<Target>(keyOrProvider)
       : keyOrProvider
@@ -48,6 +52,9 @@ export class Container implements DependencyContainerInternal {
 
     try {
       pushContainer(this)
+      if (scope) {
+        return scope.run(() => providerFn()) as Target
+      }
       return providerFn()
     } finally {
       popContainer()

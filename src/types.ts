@@ -1,3 +1,4 @@
+import type { EffectScope } from 'vue'
 import type { Vue as VueInstance } from 'vue/types/vue'
 
 /** Dependency instance type; factories must not resolve to a Promise. */
@@ -32,7 +33,10 @@ export interface DependencyDescriptor<Target> {
 }
 
 export interface DependencyContainer {
-  resolve<Target> (keyOrProvider: symbol | Provider<Target>): Target
+  resolve<Target> (
+    keyOrProvider: symbol | Provider<Target>,
+    scope?: EffectScope,
+  ): Target
   get size (): number
   /**
    * Root Vue instance this container is bound to, or `undefined` if the plugin
